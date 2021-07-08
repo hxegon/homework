@@ -5,8 +5,9 @@
   :run-x {:ns-default hxegon.homework
           :exec-fn greet
           :exec-args {:name "Clojure"}}
-  :test {:extra-paths ["test"]
-         :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}}}
+  :env/test {:extra-paths ["test"]
+             :extra-deps {org.clojure/test.check {:mvn/version "1.1.0"}
+                          lambdaisland/kaocha {:mvn/version "1.0.861"}}}
   :runner
   {:extra-deps {io.github.cognitect-labs/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
