@@ -38,6 +38,11 @@
         "https://github.com/hxegon/homework"]
        (string/join \newline)))
 
+(defn error-message [errors]
+  (string/join
+    \newline
+    (cons "Uh oh! Something went wrong:" errors)))
+
 (defn opts->action
  "Takes an option map as returned by parse-opts, validates it and returns
  a map indicating the action the program should take. Includes an optional
@@ -46,6 +51,8 @@
  (cond
    (:help options)
    {:ok? true :exit-message (usage summary)}
+   errors
+   {:ok? false :exit-message (error-message errors)}
    (->> options :file empty?)
    {:ok? false :exit-message "You must specify one or more files using -f or --file"}
    :else

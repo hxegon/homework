@@ -25,6 +25,11 @@
           action (hw/opts->action opts)]
       (is (:ok? action))
       (is (->> action :exit-message empty? not))))
+  (testing "with errors in opts, :ok? false and non-empty :exit-message"
+    (let [opts (parse-opts ["-f" "non-existant.txt"] hw/cli-options)
+          action (hw/opts->action opts)]
+      (is (->> action :ok? not))
+      (is (->> action :exit-message empty? not))))
   (testing "with no files specified, non-empty :exit-message and falsey :ok?"
     (let [opts (parse-opts [] hw/cli-options)
           action (hw/opts->action opts)]
