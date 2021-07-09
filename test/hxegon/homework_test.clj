@@ -17,6 +17,10 @@
   (testing "-s errors with invalid method name"
     (let [args ["-s" "foo"]
           parsed (parse-opts args hw/cli-options)]
+      (is (->> parsed :errors empty? not))))
+  (testing "-d rejects 0 length delimiters"
+    (let [args ["-d" ""]
+          parsed (parse-opts args hw/cli-options)]
       (is (->> parsed :errors empty? not)))))
 
 (deftest opts->action-test

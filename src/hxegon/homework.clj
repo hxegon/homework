@@ -22,7 +22,13 @@
     :default :lastname
     :parse-fn #(->> % string/lower-case keyword)
     :validate [#(#{(keys people-sorters)} %) ; input to validate fn is output of parse-fn (a lower case keyword)
-               "Sorting option must be either lastname, birthdate or gender"]] ; TODO: DRY by generate options from people-sorters
+               "Sorting option must be either lastname, birthdate or gender"]]
+
+   ["-d" "--delimiter DELIM" "Field delimiter characters. Can be a single char, ',', or multiple, ' | '. Note that this program doesn't handle escape characters."
+    ; TODO: Enable using different delimiters in a multi-file context
+    :default ' | '
+    :validate [#(> 0 (count %)) "Field delimiter must be at least 1 character long"]]
+
    ["-h" "--help"]])
 
 ; "" strings can handle multi-line literals, but this vector style construction
