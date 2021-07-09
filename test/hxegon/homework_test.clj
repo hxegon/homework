@@ -18,3 +18,21 @@
     (let [args ["-s" "foo"]
           parsed (parse-opts args hw/cli-options)]
       (is (->> parsed :errors empty? not)))))
+
+(deftest opts->action-test
+  (testing "-h/--help should have non-empty :exit-message and true :ok?"
+    (let [opts (parse-opts ["-h"] hw/cli-options)
+          action (hw/opts->action opts)]
+      (is (:ok? action))
+      (is (->> action :exit-message empty? not))))
+  (testing "with no files specified, non-empty :exit-message and falsey :ok?"
+    (let [opts (parse-opts [] hw/cli-options)
+          action (hw/opts->action opts)]
+      (is (->> action :ok? not))
+      (is (->> action :exit-message empty? not))))
+  (testing "with valid input, no errrors"
+    (let [opts (parse-opts ["-f" "deps.edn"] hw/cli-options)
+          action (hw/opts->action opts)]
+      (println "action =" action)
+      (is (->> action :options nil? not))
+      (is (->> action :exit-message nil?)))))

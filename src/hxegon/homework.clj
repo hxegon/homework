@@ -25,6 +25,32 @@
                "Sorting option must be either lastname, birthdate or gender"]] ; TODO: DRY by generate options from people-sorters
    ["-h" "--help"]])
 
+; "" strings can handle multi-line literals, but this vector style construction
+; makes newline placement and blank lines more explicit IMO
+(defn usage [options-summary]
+  (->> ["HOMEWORK: Person information utility"
+        ""
+        "USAGE: program-name [options]"
+        "Options:"
+        options-summary
+        ""
+        "Project Page:"
+        "https://github.com/hxegon/homework"]
+       (string/join \newline)))
+
+(defn opts->action
+ "Takes an option map as returned by parse-opts, validates it and returns
+ a map indicating the action the program should take. Includes an optional
+ status key, :ok?, and an :exit-message key if the program should exit."
+ [{:keys [options _arguments errors summary]}]
+ (cond
+   (:help options)
+   {:ok? true :exit-message (usage summary)}
+   (->> options :file empty?)
+   {:ok? false :exit-message "You must specify one or more files using -f or --file"}
+   :else
+   {:options options}))
+
 (defn -main
   "For now just prints the parsed option map"
   [& args]
