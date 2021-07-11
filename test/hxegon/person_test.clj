@@ -1,5 +1,6 @@
 (ns hxegon.person-test
   (:require [clojure.test :refer :all]
+            [clojure.string :as string]
             [hxegon.person :as p])
   (:import [hxegon.person Person]))
 
@@ -18,3 +19,24 @@
   (testing "with valid arguments returns something with person keys"
     (let [p (p/person valid-person-args)]
       (is (every? #(contains? p %) [:firstname :lastname :gender :fav-color :dob])))))
+
+; Make a temporary file with a 1 valid and 1 invalid person, read and test, close and delete file
+(deftest read-people-file-test
+  (let [tempfile (java.io.File/createTempFile "read-people-file-test-tempfile" ".txt")
+        filepath (.getAbsolutePath tempfile)
+        people (->> ["Doe | Jane | Female | Red | 01/02/2001" ; valid person
+                     "Smith | John | Male | Blue"]            ; invalid person: wrong number of fields
+                    (string/join \newline))]
+    (with-open [wrtr (clojure.java.io/writer tempfile)]
+      (.write wrtr people))
+    (let [results (p/read-people-file (re-pattern " \\| ") filepath)]
+      (testing "correct number of people and errors"
+        (is (->> results :people count (= 1)))
+        (is (->> results :errors count (= 1))))
+      (testing "error on expected line"
+        (is (->> results :errors first :line (= 2))))
+      (testing "error on expected file"
+        (is (->> results :errors first :file (= filepath))))
+      (testing "person has expected firstname"
+        (is (->> results :people first :firstname (= "Jane")))))
+    (.delete tempfile)))
