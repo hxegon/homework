@@ -1,18 +1,11 @@
 (ns hxegon.person
   (:require
-    [clojure.string :as string])
+    [clojure.string :as string]
+    [hxegon.internal :refer [safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
 
 (defrecord Person [lastname firstname gender fav-color dob])
-
-(defn ^:private safe-parse
-  "Wrapper for .parse that returns :token or :error-msg instead of throwing ParseException"
-  [fmt string]
-  (try
-    {:token (.parse fmt string)}
-    (catch java.text.ParseException e
-      {:error-msg (ex-message e)})))
 
 (defn person
   "Constructor for Person with validation. Returns either Person or map with :errors"

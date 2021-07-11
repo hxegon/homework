@@ -1,7 +1,8 @@
 (ns hxegon.homework
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [hxegon.internal :refer [key-of-m?]])
   (:gen-class))
 
 ; NOTE: For performance and extensibility reasons this may make more sense as
@@ -21,11 +22,6 @@
   {:pipe #" \| "
    :comma #", "
    :space #" "})
-
-(defn ^:private key-of-m?
-  "Check if v is a key of m"
-  [m k]
-  ((into #{} (keys m)) k))
 
 (def cli-options
   [["-f" "--file FILE" "Input file"
