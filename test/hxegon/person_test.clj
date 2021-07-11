@@ -59,3 +59,34 @@
         (is (->> results :people second :firstname (= "John")))))
     (.delete tempfile-1)
     (.delete tempfile-2)))
+
+(deftest people-sorters-test
+  (testing "Every comparer is an instance of java.util.Comparator" ; all functions are Comparator instances so this doesn't say much :()
+    (is (every? #(instance? java.util.Comparator %) (vals p/people-sorters))))
+  (testing "birthdate sorts people by their DOB (ascending)"
+    (let [people (map p/person
+                      [["Smith" "First" "m" "Blue" "12/25/1999"]
+                       ["Smith" "Third" "m" "Blue" "01/02/2001"]
+                       ["Smith" "Second" "f" "Blue" "01/01/2001"]
+                       ["Smith" "Fourth" "f" "Blue" "01/01/2002"]])
+          sorted ((:birthdate p/people-sorters) people)]
+      (is (= ["First" "Second" "Third" "Fourth"]
+             (map :firstname sorted)))))
+  (testing "lastname sorts people by their last name (descending)"
+    (let [people (map p/person
+                      [["Aaaaa" "First" "m" "Blue" "01/01/2000"]
+                       ["Bbbbb" "Third" "m" "Blue" "01/01/2000"]
+                       ["Aaaaa" "Second" "f" "Blue" "01/01/2000"]
+                       ["Ccccc" "Fourth" "f" "Blue" "01/01/2000"]])
+          sorted ((:lastname p/people-sorters) people)]
+      (is (= ["Fourth" "Third" "Second" "First"]
+             (map :firstname sorted)))))
+  (testing "gender sorts female before male, then by last name (ascending)"
+    (let [people (map p/person
+                      [["Bbbbb" "Fourth" "m" "Blue" "01/01/2000"]
+                       ["Aaaaa" "Third" "m" "Blue" "01/01/2000"]
+                       ["Aaaaa" "First" "f" "Blue" "01/01/2000"]
+                       ["Ccccc" "Second" "f" "Blue" "01/01/2000"]])
+          sorted ((:gender p/people-sorters) people)]
+      (is (= ["First" "Second" "Third" "Fourth"]
+             (map :firstname sorted))))))

@@ -40,3 +40,16 @@
   (->> file-names
        (map #(read-people-file delim %))
        (apply merge-with concat)))
+
+(def people-sorters
+  {:lastname
+   (fn lastname-sorter [people]
+     (reverse (sort-by :lastname people)))
+   :birthdate
+   (fn birthdate-sorter [people]
+     (sort-by :dob people))
+   :gender 
+   (fn gender-sorter [people]
+     (->> people
+          (sort-by :lastname)
+          (sort-by :gender)))})

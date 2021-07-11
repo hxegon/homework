@@ -2,15 +2,9 @@
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.java.io :as io]
+            [hxegon.person :refer [people-sorters]]
             [hxegon.internal :refer [key-of-m?]])
   (:gen-class))
-
-; NOTE: For performance and extensibility reasons this may make more sense as
-; a protocol.
-(def people-sorters
-  {:lastname #()
-   :birthdate #()
-   :gender #()})
 
 ; NOTE: In the initial version, the -d option just accepted a string for use
 ; as the argument to string/split, but " | " produced unexpected behaviour.
