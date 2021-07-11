@@ -1,7 +1,8 @@
 (ns hxegon.person-test
   (:require [clojure.test :refer :all]
             [clojure.string :as string]
-            [hxegon.person :as p])
+            [hxegon.person :as p]
+            [hxegon.homework :refer [delimiters]])
   (:import [hxegon.person Person]))
 
 (def valid-person-args ["last-name" "first-name" "male" "blue" "01/01/2000"])
@@ -29,7 +30,7 @@
                     (string/join \newline))]
     (with-open [wrtr (clojure.java.io/writer tempfile)]
       (.write wrtr people))
-    (let [results (p/read-people-file (re-pattern " \\| ") filepath)]
+    (let [results (p/read-people-file (:pipe delimiters) filepath)]
       (testing "correct number of people and errors"
         (is (->> results :people count (= 1)))
         (is (->> results :errors count (= 1))))

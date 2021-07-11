@@ -18,10 +18,17 @@
     (let [args ["-s" "foo"]
           parsed (parse-opts args hw/cli-options)]
       (is (->> parsed :errors empty? not))))
-  (testing "-d rejects 0 length delimiters"
-    (let [args ["-d" ""]
+  (testing "-d has errors with an unknown or empty DELIM option"
+    (let [args ["-d" "tab" "-f" "deps.edn"]
           parsed (parse-opts args hw/cli-options)]
-      (is (->> parsed :errors empty? not)))))
+      (is (->> parsed :errors :empty? not)))
+    (let [args ["-d" "" "-f" "deps.edn"]
+          parsed (parse-opts args hw/cli-options)]
+      (is (->> parsed :errors empty? not))))
+  (testing "-d has no errors with a valid DELIM option"
+    (let [args ["-d" "comma" "-f" "deps.edn"]
+          parsed (parse-opts args hw/cli-options)]
+      (is (= :comma (-> parsed :options :delimiter))))))
 
 (deftest opts->action-test
   (testing "-h/--help should have non-empty :exit-message and true :ok?"
