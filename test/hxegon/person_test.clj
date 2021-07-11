@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [clojure.string :as string]
             [hxegon.person :as p]
-            [hxegon.homework :refer [delimiters]])
-  (:import [hxegon.person Person]))
+            [hxegon.homework :refer [delimiters]]))
 
 (def valid-person-args ["last-name" "first-name" "male" "blue" "01/01/2000"])
 
