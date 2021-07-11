@@ -22,6 +22,11 @@
    :comma #", "
    :space #" "})
 
+(defn ^:private key-of-m?
+  "Check if v is a key of m"
+  [m k]
+  ((into #{} (keys m)) k))
+
 (def cli-options
   [["-f" "--file FILE" "Input file"
     :multi true ; Can specify multiple files
@@ -32,14 +37,14 @@
    ["-s" "--sort METHOD" "Sorting method. Either lastname, birthdate, or gender (defaults to lastname)."
     :default :lastname
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#(#{(keys people-sorters)} %) ; input to validate fn is output of parse-fn (a lower case keyword)
+    :validate [#(key-of-m? people-sorters %) ; input to validate fn is output of parse-fn (a lower case keyword)
                "Sorting option must be either lastname, birthdate or gender"]]
 
    ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are 'pipe': ' | ', comma: ', ', or space: ' '. Defaults to pipe"
     ; TODO: Change from inputing pattern to inputing symbol to lookup as pattern
     :default (:pipe delimiters)
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#((into #{} (keys delimiters)) %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
+    :validate [#(key-of-m? delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
    ["-h" "--help"]])
 

@@ -14,10 +14,14 @@
     (let [args ["-f" "deps.edn" "-f" "README.md"]
           parsed (parse-opts args hw/cli-options)]
       (is (= 2 (count (get-in parsed [:options :file]))))))
-  (testing "-s errors with invalid method name"
-    (let [args ["-s" "foo"]
+  (testing "-s has errors with invalid method name"
+    (let [args ["-s" "foo" "-f" "deps.edn"]
           parsed (parse-opts args hw/cli-options)]
       (is (->> parsed :errors empty? not))))
+  (testing "-s has no errors with valid SORT option"
+    (let [args ["-s" "gender" "-f" "deps.edn"]
+          parsed (parse-opts args hw/cli-options)]
+      (is (= :gender (-> parsed :options :sort)))))
   (testing "-d has errors with an unknown or empty DELIM option"
     (let [args ["-d" "tab" "-f" "deps.edn"]
           parsed (parse-opts args hw/cli-options)]
