@@ -40,3 +40,22 @@
       (testing "person has expected firstname"
         (is (->> results :people first :firstname (= "Jane")))))
     (.delete tempfile)))
+
+(deftest read-people-files-test
+  (let [tempfile-1 (java.io.File/createTempFile "read-people-files-test-tempfile-1" ".txt")
+        filepath-1 (.getAbsolutePath tempfile-1)
+        person-1 "Doe | Jane | Female | Red | 01/02/2001"
+        tempfile-2 (java.io.File/createTempFile "read-people-files-test-tempfile-2" ".txt")
+        filepath-2 (.getAbsolutePath tempfile-2)
+        person-2 "Smith | John | Male | Blue | 01/03/2001"]
+    (with-open [wrtr (clojure.java.io/writer tempfile-1)]
+      (.write wrtr person-1))
+    (with-open [wrtr (clojure.java.io/writer tempfile-2)]
+      (.write wrtr person-2))
+    (let [results (p/read-people-files (:pipe delimiters) [filepath-1 filepath-2])]
+      (testing "both people in results with no errors"
+        (is (= [] (:errors results)))
+        (is (->> results :people first :firstname (= "Jane")))
+        (is (->> results :people second :firstname (= "John")))))
+    (.delete tempfile-1)
+    (.delete tempfile-2)))
