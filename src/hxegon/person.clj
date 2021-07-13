@@ -60,7 +60,7 @@
    (fn gender-sorter [people]
      (->> people
           (sort-by :lastname)
-          (sort-by :gender)))})
+          (sort-by (comp string/lower-case :gender))))})
 
 (defn rename-person-keys
   "Updates :people keys to readable strings. Intended for use with print-table."
