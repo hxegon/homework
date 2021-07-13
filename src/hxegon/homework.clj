@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.java.io :as io]
-            [hxegon.person :refer [print-people read-people-files people-sorters]]
+            [hxegon.homework.person :refer [print-people read-people-files people-sorters]]
             [hxegon.internal :refer [key-of-m?]])
   (:gen-class))
 

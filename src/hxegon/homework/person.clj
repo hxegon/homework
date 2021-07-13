@@ -1,4 +1,4 @@
-(ns hxegon.person
+(ns hxegon.homework.person
   (:require
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
