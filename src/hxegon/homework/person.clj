@@ -95,10 +95,9 @@
 
 (defn print-people
   "Print people as a table, with more readable field names.
-  takes a map of { :people [Person] :errors [{ :file :line :msg }] (see: read-people-files)
-  and an optional :silent argument which defaults to nil"
-  [{:keys [people errors]} & {:as options}]
-  (let [silent (or (:silent options) false)
+  takes keys :people [Person], :errors [{ :file :line :msg }], and :options { :silent bool }"
+  [{:keys [people errors options]}]
+  (let [silent (:silent options)
         readable-people (->> people
                              (map #(update % :dob render-dob))
                              (map rename-person-keys))

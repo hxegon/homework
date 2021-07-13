@@ -139,6 +139,6 @@
                (map #(string/includes? result %))
                (every? identity)))
       (testing "unless :silent"
-        (let [silent-result (with-out-str (p/print-people {:errors errors} :silent true))]
+        (let [silent-result (with-out-str (p/print-people {:errors errors :options {:silent true}}))]
           (println silent-result)
-          (is (= true (every? not (map #(string/includes? silent-result %) error-data)))))))))
+          (is (= '(false false false) (map #(string/includes? silent-result %) error-data))))))))
