@@ -36,6 +36,9 @@
     :parse-fn #(->> % string/lower-case keyword)
     :validate [#(key-of-m? delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
+   ["-S" "--silent" "Suppress any parsing errors and skip the lines that have issues"
+    :default false]
+
    ["-h" "--help"]])
 
 ; "" strings can handle multi-line literals, but this vector style construction
