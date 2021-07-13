@@ -90,3 +90,56 @@
           sorted ((:gender p/people-sorters) people)]
       (is (= ["First" "Second" "Third" "Fourth"]
              (map :firstname sorted))))))
+
+(deftest rename-person-keys-test
+  (testing "Renames keys to expected strings"
+    (let [john (p/person ["Smith" "John" "Male" "blue" "01/01/2001"])
+          bdate (:dob john)
+          readable-john (p/rename-person-keys john)]
+      (println readable-john)
+      (is (= ["Smith" "John" "Male" "blue" bdate]
+             (map #(get readable-john %)
+                  ["last name"
+                   "first name"
+                   "gender"
+                   "favorite color"
+                   "birthdate"]))))))
+
+(deftest render-parse-error-test
+  (testing "return string includes all error data"
+    (let [error {:file "foo.txt" :line 1 :msg "barbaz"}
+          return (p/render-parse-error error)]
+      (is (->> (vals error)
+               (map str)
+               (map #(string/includes? return %))
+               (every? identity))))))
+
+(deftest render-dob-test
+  (testing "Renders dates as M/D/YYYY"
+    (let [date-string "01/01/2001"
+          dob (:token (p/parse-dob date-string))
+          rendered-dob (p/render-dob dob)]
+      (is (= date-string rendered-dob)))))
+
+(deftest print-people-test
+  (testing "people data is sent to *out*"
+    (let [people-data [["Smith" "John" "Male" "blue" "01/01/2000"]
+                       ["Doe" "Jane" "Female" "red" "01/02/2000"]]
+          people (map p/person people-data)
+          result (with-out-str (p/print-people {:people people}))]
+      (println result)
+      (is (->> (flatten people-data)
+               (map #(string/includes? result %))
+               (every? identity)))))
+  (testing "error data is sent to *out*"
+    (let [errors [{:file "foo.txt" :line 1 :msg "barbaz"}]
+          error-data (->> errors first vals (map str))
+          result (with-out-str (p/print-people {:errors errors}))]
+      (println result)
+      (is (->> error-data
+               (map #(string/includes? result %))
+               (every? identity)))
+      (testing "unless :silent"
+        (let [silent-result (with-out-str (p/print-people {:errors errors} :silent true))]
+          (println silent-result)
+          (is (= true (every? not (map #(string/includes? silent-result %) error-data)))))))))

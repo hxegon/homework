@@ -1,6 +1,8 @@
 (ns hxegon.person
   (:require
+    [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
+    [clojure.pprint :refer [print-table]]
     [hxegon.internal :refer [safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
@@ -59,3 +61,39 @@
      (->> people
           (sort-by :lastname)
           (sort-by :gender)))})
+
+(defn rename-person-keys
+  "Updates :people keys to readable strings. Intended for use with print-table."
+  [person]
+  (let [key-map {:firstname "first name"
+                 :lastname "last name"
+                 :gender "gender"
+                 :fav-color "favorite color"
+                 :dob "birthdate"}]
+    (rename-keys person key-map)))
+
+(defn render-parse-error
+  "Returns a readble string version of an error map (keys :file :line :msg)"
+  [{:keys [file line msg]}]
+  (format "In file %s, line %d: %s" file line msg))
+
+(defn render-dob
+  "Renders a person's dob as M/D/YYYY"
+  [date]
+  (.format dob-format date))
+
+(defn print-people
+  "Print people as a table, with more readable field names.
+  takes a map of { :people [Person] :errors [{ :file :line :msg }] (see: read-people-files)
+  and an optional :silent argument which defaults to nil"
+  [{:keys [people errors]} & {:as options}]
+  (let [silent (or (:silent options) false)
+        readable-people (->> people
+                             (map #(update % :dob render-dob))
+                             (map rename-person-keys))
+        error-msgs (when errors (map render-parse-error errors))]
+    (print-table readable-people)
+    (when (and (not silent) (->> errors empty? not))
+      (do (println) ; empty line between people table and errors
+          (doseq [error-msg error-msgs]
+            (println error-msg))))))
