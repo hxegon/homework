@@ -20,7 +20,7 @@
   "Constructor for Person with validation. Returns either Person or map with :errors"
   [args]
   (if (not= 5 (count args))
-    {:error-msg (str "Expected 5 arguments but got " (count args))}
+    {:error-msg (str "Expected 5 arguments but got " (count args) " from " (string/join ", " args))}
     (let [[lastname firstname gender fav-color dob-string] args
           dob (parse-dob dob-string)]
       (if (:error-msg dob)
