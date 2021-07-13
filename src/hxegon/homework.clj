@@ -2,7 +2,7 @@
   (:require [clojure.string :as string]
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.java.io :as io]
-            [hxegon.person :refer [people-sorters]]
+            [hxegon.person :refer [print-people read-people-files people-sorters]]
             [hxegon.internal :refer [key-of-m?]])
   (:gen-class))
 
@@ -74,8 +74,22 @@
    :else
    {:options options}))
 
+(defn exit [ok msg]
+  (println msg)
+  (System/exit (if ok 0 1)))
+
 (defn -main
-  "For now just prints the parsed option map"
+  "Converts arguments into an 'action' map, and performs actions based on the
+  contents."
   [& args]
-  (print
-    (parse-opts args cli-options)))
+  (let [action (opts->action (parse-opts args cli-options))
+        {:keys [ok? exit-message options]} action
+        {files :file
+         sort-key :sort
+         delim :delimiter} options]
+    (if exit-message
+      (exit ok? exit-message)
+      (let [result (read-people-files delim files)
+            sorter (sort-key people-sorters)]
+        (print-people (update result :people sorter) :silent (:silent options))))))
+
