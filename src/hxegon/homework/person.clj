@@ -3,7 +3,7 @@
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
     [clojure.pprint :refer [print-table]]
-    [hxegon.internal :refer [safe-parse]])
+    [hxegon.homework.internal :refer [safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
 

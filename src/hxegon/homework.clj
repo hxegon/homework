@@ -3,7 +3,7 @@
             [clojure.tools.cli :refer [parse-opts]]
             [clojure.java.io :as io]
             [hxegon.homework.person :refer [print-people read-people-files people-sorters]]
-            [hxegon.internal :refer [key-of-m?]])
+            [hxegon.homework.internal :refer [key-of-m?]])
   (:gen-class))
 
 ; NOTE: In the initial version, the -d option just accepted a string for use

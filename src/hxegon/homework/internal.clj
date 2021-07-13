@@ -1,4 +1,4 @@
-(ns hxegon.internal)
+(ns hxegon.homework.internal)
 
 (defn key-of-m?
   "Check if v is a key of m"
