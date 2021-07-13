@@ -1,8 +1,7 @@
 (ns hxegon.homework.person-test
   (:require [clojure.test :refer :all]
             [clojure.string :as string]
-            [hxegon.homework.person :as p]
-            [hxegon.homework :refer [delimiters]]))
+            [hxegon.homework.person :as p]))
 
 (def valid-person-args ["last-name" "first-name" "male" "blue" "01/01/2000"])
 
@@ -29,7 +28,7 @@
                     (string/join \newline))]
     (with-open [wrtr (clojure.java.io/writer tempfile)]
       (.write wrtr people))
-    (let [results (p/read-people-file (:pipe delimiters) filepath)]
+    (let [results (p/read-people-file (:pipe p/delimiters) filepath)]
       (testing "correct number of people and errors"
         (is (->> results :people count (= 1)))
         (is (->> results :errors count (= 1))))
@@ -52,7 +51,7 @@
       (.write wrtr person-1))
     (with-open [wrtr (clojure.java.io/writer tempfile-2)]
       (.write wrtr person-2))
-    (let [results (p/read-people-files (:pipe delimiters) [filepath-1 filepath-2])]
+    (let [results (p/read-people-files (:pipe p/delimiters) [filepath-1 filepath-2])]
       (testing "both people in results with no errors"
         (is (= [] (:errors results)))
         (is (->> results :people first :firstname (= "Jane")))

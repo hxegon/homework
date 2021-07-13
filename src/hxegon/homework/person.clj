@@ -27,6 +27,17 @@
         dob
         (->Person lastname firstname gender fav-color (:token dob))))))
 
+; NOTE: In the initial version, the -d option just accepted a string for use
+; as the argument to string/split, but " | " produced unexpected behaviour.
+; string/split only accepts a regex, and | is a special character.
+; Forcing the user to know about Java's regex escape character rules,
+; or the differences between re-pattern and clojure's regex literal (#"pattern")
+; struck me as poor UX, so here we are looking up a keyword for a known regex.
+(def delimiters
+  {:pipe #" \| "
+   :comma #", "
+   :space #" "})
+
 (defn read-people-file
   "Takes a filename, reads it and returns a map:
   { :people [Person] :errors [{:file string :line integer :msg string}] }"
