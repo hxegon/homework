@@ -4,7 +4,7 @@
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
     [hxegon.homework.internal :refer [key-of-m?]]
-    [hxegon.homework.person :refer [people-sorters delimiters]]))
+    [hxegon.homework.person :as p]))
 
 (def options
   [["-f" "--file FILE" "Input file"
@@ -16,14 +16,14 @@
    ["-s" "--sort METHOD" "Sorting method. Either lastname, birthdate, or gender (defaults to lastname)."
     :default :lastname
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#(key-of-m? people-sorters %) ; input to validate fn is output of parse-fn (a lower case keyword)
+    :validate [#(key-of-m? p/people-sorters %) ; input to validate fn is output of parse-fn (a lower case keyword)
                "Sorting option must be either lastname, birthdate or gender"]]
 
    ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are 'pipe': ' | ', comma: ', ', or space: ' '. Defaults to pipe"
     ; TODO: Change from inputing pattern to inputing symbol to lookup as pattern
-    :default (:pipe delimiters)
+    :default (:pipe p/delimiters)
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#(key-of-m? delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
+    :validate [#(key-of-m? p/delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
    ["-S" "--silent" "Suppress any parsing errors and skip the lines that have issues"
     :default false]
@@ -60,3 +60,12 @@
       (->> options :file empty?)
       {:ok? false :exit-message "You must specify one or more files using -f or --file"}
       :else state)))
+
+(defn main
+  [{:keys [options] :as state}]
+  (let [{files :file
+         sort-key :sort
+         delim :delimiter} options
+        result (p/read-people-files delim files)
+        sorter (sort-key p/people-sorters)]
+    (p/print-people (merge (update result :people sorter) state))))
