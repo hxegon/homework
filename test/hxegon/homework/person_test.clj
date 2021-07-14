@@ -1,8 +1,7 @@
 (ns hxegon.homework.person-test
   (:require [clojure.test :refer :all]
             [clojure.string :as string]
-            [hxegon.homework.person :as p]
-            [hxegon.homework :refer [delimiters]]))
+            [hxegon.homework.person :as p]))
 
 (def valid-person-args ["last-name" "first-name" "male" "blue" "01/01/2000"])
 
@@ -29,7 +28,7 @@
                     (string/join \newline))]
     (with-open [wrtr (clojure.java.io/writer tempfile)]
       (.write wrtr people))
-    (let [results (p/read-people-file (:pipe delimiters) filepath)]
+    (let [results (p/read-people-file (:pipe p/delimiters) filepath)]
       (testing "correct number of people and errors"
         (is (->> results :people count (= 1)))
         (is (->> results :errors count (= 1))))
@@ -52,7 +51,7 @@
       (.write wrtr person-1))
     (with-open [wrtr (clojure.java.io/writer tempfile-2)]
       (.write wrtr person-2))
-    (let [results (p/read-people-files (:pipe delimiters) [filepath-1 filepath-2])]
+    (let [results (p/read-people-files (:pipe p/delimiters) [filepath-1 filepath-2])]
       (testing "both people in results with no errors"
         (is (= [] (:errors results)))
         (is (->> results :people first :firstname (= "Jane")))
@@ -121,25 +120,3 @@
           rendered-dob (p/render-dob dob)]
       (is (= date-string rendered-dob)))))
 
-(deftest print-people-test
-  (testing "people data is sent to *out*"
-    (let [people-data [["Smith" "John" "Male" "blue" "01/01/2000"]
-                       ["Doe" "Jane" "Female" "red" "01/02/2000"]]
-          people (map p/person people-data)
-          result (with-out-str (p/print-people {:people people}))]
-      (println result)
-      (is (->> (flatten people-data)
-               (map #(string/includes? result %))
-               (every? identity)))))
-  (testing "error data is sent to *out*"
-    (let [errors [{:file "foo.txt" :line 1 :msg "barbaz"}]
-          error-data (->> errors first vals (map str))
-          result (with-out-str (p/print-people {:errors errors}))]
-      (println result)
-      (is (->> error-data
-               (map #(string/includes? result %))
-               (every? identity)))
-      (testing "unless :silent"
-        (let [silent-result (with-out-str (p/print-people {:errors errors} :silent true))]
-          (println silent-result)
-          (is (= true (every? not (map #(string/includes? silent-result %) error-data)))))))))

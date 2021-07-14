@@ -2,7 +2,6 @@
   (:require
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
-    [clojure.pprint :refer [print-table]]
     [hxegon.homework.internal :refer [safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
@@ -26,6 +25,17 @@
       (if (:error-msg dob)
         dob
         (->Person lastname firstname gender fav-color (:token dob))))))
+
+; NOTE: In the initial version, the -d option just accepted a string for use
+; as the argument to string/split, but " | " produced unexpected behaviour.
+; string/split only accepts a regex, and | is a special character.
+; Forcing the user to know about Java's regex escape character rules,
+; or the differences between re-pattern and clojure's regex literal (#"pattern")
+; struck me as poor UX, so here we are looking up a keyword for a known regex.
+(def delimiters
+  {:pipe #" \| "
+   :comma #", "
+   :space #" "})
 
 (defn read-people-file
   "Takes a filename, reads it and returns a map:
@@ -82,18 +92,3 @@
   [date]
   (.format dob-format date))
 
-(defn print-people
-  "Print people as a table, with more readable field names.
-  takes a map of { :people [Person] :errors [{ :file :line :msg }] (see: read-people-files)
-  and an optional :silent argument which defaults to nil"
-  [{:keys [people errors]} & {:as options}]
-  (let [silent (or (:silent options) false)
-        readable-people (->> people
-                             (map #(update % :dob render-dob))
-                             (map rename-person-keys))
-        error-msgs (when errors (map render-parse-error errors))]
-    (print-table readable-people)
-    (when (and (not silent) (->> errors empty? not))
-      (do (println) ; empty line between people table and errors
-          (doseq [error-msg error-msgs]
-            (println error-msg))))))
