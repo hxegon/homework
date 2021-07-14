@@ -3,6 +3,7 @@
     [clojure.java.io :as io]
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
+    [clojure.pprint :refer [print-table]]
     [hxegon.homework.internal :refer [key-of-m?]]
     [hxegon.homework.person :as p]))
 
@@ -61,6 +62,21 @@
       {:ok? false :exit-message "You must specify one or more files using -f or --file"}
       :else state)))
 
+(defn print-people-state
+  "Print people as a table, with more readable field names and errors (-> state :options :silent)
+  takes keys :people [Person], :errors [{ :file :line :msg }], and :options { :silent bool }"
+  [{:keys [people errors options] :as _state}]
+  (let [silent (:silent options)
+        readable-people (->> people
+                             (map #(update % :dob p/render-dob))
+                             (map p/rename-person-keys))
+        error-msgs (when errors (map p/render-parse-error errors))]
+    (print-table readable-people)
+    (when (and (not silent) (->> errors empty? not))
+      (do (println) ; empty line between people table and errors
+          (doseq [error-msg error-msgs]
+            (println error-msg))))))
+
 (defn main
   [{:keys [options] :as state}]
   (let [{files :file
@@ -68,4 +84,4 @@
          delim :delimiter} options
         result (p/read-people-files delim files)
         sorter (sort-key p/people-sorters)]
-    (p/print-people (merge (update result :people sorter) state))))
+    (print-people-state (merge (update result :people sorter) state))))

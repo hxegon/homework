@@ -120,25 +120,3 @@
           rendered-dob (p/render-dob dob)]
       (is (= date-string rendered-dob)))))
 
-(deftest print-people-test
-  (testing "people data is sent to *out*"
-    (let [people-data [["Smith" "John" "Male" "blue" "01/01/2000"]
-                       ["Doe" "Jane" "Female" "red" "01/02/2000"]]
-          people (map p/person people-data)
-          result (with-out-str (p/print-people {:people people}))]
-      (println result)
-      (is (->> (flatten people-data)
-               (map #(string/includes? result %))
-               (every? identity)))))
-  (testing "error data is sent to *out*"
-    (let [errors [{:file "foo.txt" :line 1 :msg "barbaz"}]
-          error-data (->> errors first vals (map str))
-          result (with-out-str (p/print-people {:errors errors}))]
-      (println result)
-      (is (->> error-data
-               (map #(string/includes? result %))
-               (every? identity)))
-      (testing "unless :silent"
-        (let [silent-result (with-out-str (p/print-people {:errors errors :options {:silent true}}))]
-          (println silent-result)
-          (is (= '(false false false) (map #(string/includes? silent-result %) error-data))))))))

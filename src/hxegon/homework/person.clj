@@ -2,7 +2,6 @@
   (:require
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
-    [clojure.pprint :refer [print-table]]
     [hxegon.homework.internal :refer [safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
@@ -93,17 +92,3 @@
   [date]
   (.format dob-format date))
 
-(defn print-people
-  "Print people as a table, with more readable field names.
-  takes keys :people [Person], :errors [{ :file :line :msg }], and :options { :silent bool }"
-  [{:keys [people errors options]}]
-  (let [silent (:silent options)
-        readable-people (->> people
-                             (map #(update % :dob render-dob))
-                             (map rename-person-keys))
-        error-msgs (when errors (map render-parse-error errors))]
-    (print-table readable-people)
-    (when (and (not silent) (->> errors empty? not))
-      (do (println) ; empty line between people table and errors
-          (doseq [error-msg error-msgs]
-            (println error-msg))))))
