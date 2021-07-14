@@ -2,6 +2,7 @@
   (:require
     [clojure.java.io :as io]
     [clojure.string :as string]
+    [clojure.tools.cli :refer [parse-opts]]
     [hxegon.homework.internal :refer [key-of-m?]]
     [hxegon.homework.person :refer [people-sorters delimiters]]))
 
@@ -45,17 +46,17 @@
         "https://github.com/hxegon/homework"]
        (string/join \newline)))
 
-(defn opts->action
- "Takes an option map as returned by parse-opts, validates it and returns
- a map indicating the action the program should take. Includes an optional
- status key, :ok?, and an :exit-message key if the program should exit."
- [{:keys [options _arguments errors summary]}]
- (cond
-   (:help options)
-   {:ok? true :exit-message (usage summary)}
-   errors
-   {:ok? false :exit-message (error-message errors)}
-   (->> options :file empty?)
-   {:ok? false :exit-message "You must specify one or more files using -f or --file"}
-   :else
-   {:options options}))
+(defn args->initial-state
+  "Takes an option map as returned by parse-opts, validates it and returns
+  a map indicating the action the program should take. Includes an optional
+  status key, :ok?, and an :exit-message key if the program should exit."
+  [args]
+  (let [{:keys [options _arguments errors summary] :as state} (parse-opts args options)]
+    (cond
+      (:help options)
+      {:ok? true :exit-message (usage summary)}
+      errors
+      {:ok? false :exit-message (error-message errors)}
+      (->> options :file empty?)
+      {:ok? false :exit-message "You must specify one or more files using -f or --file"}
+      :else state)))

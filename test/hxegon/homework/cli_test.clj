@@ -34,25 +34,21 @@
           parsed (parse-opts args cli/options)]
       (is (= :comma (-> parsed :options :delimiter))))))
 
-(deftest opts->action-test
+(deftest args->initial-state-test
   (testing "-h/--help should have non-empty :exit-message and true :ok?"
-    (let [opts (parse-opts ["-h"] cli/options)
-          action (cli/opts->action opts)]
-      (is (:ok? action))
-      (is (->> action :exit-message empty? not))))
+    (let [state (cli/args->initial-state ["-h"])]
+      (is (:ok? state))
+      (is (->> state :exit-message empty? not))))
   (testing "with errors in opts, :ok? false and non-empty :exit-message"
-    (let [opts (parse-opts ["-f" "non-existant.txt"] cli/options)
-          action (cli/opts->action opts)]
-      (is (->> action :ok? not))
-      (is (->> action :exit-message empty? not))))
+    (let [state (cli/args->initial-state ["-f" "non-existant.txt"])]
+      (is (->> state :ok? not))
+      (is (->> state :exit-message empty? not))))
   (testing "with no files specified, non-empty :exit-message and falsey :ok?"
-    (let [opts (parse-opts [] cli/options)
-          action (cli/opts->action opts)]
-      (is (->> action :ok? not))
-      (is (->> action :exit-message empty? not))))
-  (testing "with valid input, no errrors"
-    (let [opts (parse-opts ["-f" "deps.edn"] cli/options)
-          action (cli/opts->action opts)]
-      (println "action =" action)
-      (is (->> action :options nil? not))
-      (is (->> action :exit-message nil?)))))
+    (let [state (cli/args->initial-state [])]
+      (is (->> state :ok? not))
+      (is (->> state :exit-message empty? not))))
+  (testing "with minimum valid input, no errrors"
+    (let [state (cli/args->initial-state ["-f" "deps.edn"])]
+      (println "state =" state)
+      (is (->> state :options nil? not))
+      (is (->> state :exit-message nil?)))))

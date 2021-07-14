@@ -9,11 +9,9 @@
   (System/exit (if ok 0 1)))
 
 (defn -main
-  "Converts arguments into an 'action' map, and performs actions based on the
-  contents."
   [& args]
-  (let [action (cli/opts->action (parse-opts args cli/options))
-        {:keys [ok? exit-message options]} action
+  (let [state (cli/args->initial-state args)
+        {:keys [ok? exit-message options]} state
         {files :file
          sort-key :sort
          delim :delimiter} options]
@@ -21,5 +19,4 @@
       (exit ok? exit-message)
       (let [result (read-people-files delim files)
             sorter (sort-key people-sorters)]
-        (print-people (update result :people sorter) :silent (:silent options))))))
-
+        (print-people (merge (update result :people sorter) state))))))
