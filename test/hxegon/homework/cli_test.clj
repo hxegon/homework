@@ -34,7 +34,10 @@
   (testing "-d has no errors with a valid DELIM option"
     (let [args ["-d" "comma" "-f" "deps.edn"]
           parsed (parse-opts args cli/options)]
-      (is (= :comma (-> parsed :options :delimiter))))))
+      (is (= :comma (-> parsed :options :delimiter)))))
+  (testing "-S has true :silent"
+    (let [parsed (parse-opts ["-S"] cli/options)]
+      (is (->> parsed :options :silent)))))
 
 (deftest args->initial-state-test
   (testing "-h/--help should have non-empty :exit-message and true :ok?"
