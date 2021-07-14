@@ -39,7 +39,13 @@
 (defn usage [options-summary]
   (->> ["HOMEWORK: Person information utility"
         ""
-        "USAGE: program-name [options]"
+        "USAGE: program-name <action (by default read)> [options]"
+        ""
+        "Actions:"
+        "read  - reads files specified by one or more -f flags and prints the people from those files"
+        "        relevant options: -S (silent) -d (delimiter) -s (sort-by) -f (file)"
+        "debug - print value of initial state. Can use any other options, but not subcommands"
+        ""
         "Options:"
         options-summary
         ""
@@ -47,20 +53,33 @@
         "https://github.com/hxegon/homework"]
        (string/join \newline)))
 
+(def action-set
+  "set of possible actions"
+  #{:read
+    :debug})
+
 (defn args->initial-state
   "Takes an option map as returned by parse-opts, validates it and returns
   a map indicating the action the program should take. Includes an optional
   status key, :ok?, and an :exit-message key if the program should exit."
   [args]
-  (let [{:keys [options _arguments errors summary] :as state} (parse-opts args options)]
+  (let [{:keys [options arguments errors summary] :as state} (parse-opts args options)
+        arg-n (count arguments)
+        action (or (-> arguments first keyword) :read)
+        use-msg (usage summary)]
     (cond
       (:help options)
-      {:ok? true :exit-message (usage summary)}
+      {:ok? true :exit-message use-msg}
       errors
       {:ok? false :exit-message (error-message errors)}
-      (->> options :file empty?)
-      {:ok? false :exit-message "You must specify one or more files using -f or --file"}
-      :else state)))
+      (> arg-n 1)
+      {:ok? false :exit-message (str "Too many arguments" \newline use-msg)}
+      (not (action-set action))
+      {:ok? false :exit-message (str "Argument " action " isn't a possible subcommand." \newline use-msg)}
+      (and (= action :read) (->> options :file empty?))
+      {:ok? false :exit-message "You must specify one or more files using -f or --file when you're use read"}
+      :else
+      (assoc state :action action))))
 
 (defn print-people-state
   "Print people as a table, with more readable field names and errors (-> state :options :silent)

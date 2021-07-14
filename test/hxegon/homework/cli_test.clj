@@ -51,9 +51,19 @@
       (is (->> state :exit-message empty? not))))
   (testing "with minimum valid input, no errrors"
     (let [state (cli/args->initial-state ["-f" "deps.edn"])]
-      (println "state =" state)
       (is (->> state :options nil? not))
-      (is (->> state :exit-message nil?)))))
+      (is (->> state :exit-message nil?))))
+  (testing "has an :action of :read"
+    (testing "with no arguments"
+    (let [state (cli/args->initial-state ["-f" "deps.edn"])]
+      (is (= :read (:action state)))))
+    (testing "with a 'read' argument"
+      (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
+        (is (= :read (:action state))))))
+  (testing "with invalid action, :ok? false and :exit-message mentioning bad action"
+    (let [state (cli/args->initial-state ["wrong"])]
+      (is (not (:ok? state)))
+      (is (string/includes? (get state :exit-message "no :exit-message") "wrong")))))
 
 (deftest print-people-state-test
   (testing "people data is sent to *out*"
