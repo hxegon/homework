@@ -103,4 +103,4 @@
          delim :delimiter} options
         result (p/read-people-files delim files)
         sorter (sort-key p/people-sorters)]
-    (print-people-state (merge (update result :people sorter) state))))
+    (print-people-state (merge state (update result :people sorter)))))
