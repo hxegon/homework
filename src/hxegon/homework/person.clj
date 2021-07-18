@@ -2,7 +2,7 @@
   (:require
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
-    [hxegon.homework.internal :refer [safe-parse]])
+    [hxegon.homework.internal :refer [key-of-m? safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
 
@@ -36,6 +36,12 @@
   {:pipe #" \| "
    :comma #", "
    :space #" "})
+
+(defn line->person
+  [delim line]
+  (if (key-of-m? delimiters delim)
+    (person (string/split line (delim delimiters)))
+    {:error-msg (str "Invalid delimiter value: " delim)}))
 
 (defn read-people-file
   "Takes a filename, reads it and returns a map:
