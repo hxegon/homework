@@ -1,8 +1,13 @@
 {:paths ["src" "resources"]
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
-        org.clojure/tools.cli {:mvn/version "1.0.206"}}
+        org.clojure/tools.cli {:mvn/version "1.0.206"}
+        ring/ring-core {:mvn/version "1.9.3"}
+        ring/ring-jetty-adapter {:mvn/version "1.9.3"}
+        metosin/reitit {:mvn/version "0.5.13"}
+        metosin/muuntaja {:mvn/version "0.6.8"}}
  :aliases
- {:run-m {:main-opts ["-m" "hxegon.homework"]}
+ {:run-m {:main-opts ["-m" "hxegon.homework"]
+          :jvm-opts ["-Dorg.eclipse.jetty.util.log.announce=false"]}
   :run-x {:ns-default hxegon.homework
           :exec-fn greet
           :exec-args {:name "Clojure"}}
