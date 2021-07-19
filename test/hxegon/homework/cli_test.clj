@@ -70,8 +70,8 @@
 
 (deftest print-people-state-test
   (testing "people data is sent to *out*"
-    (let [people-data [["Smith" "John" "Male" "blue" "01/01/2000"]
-                       ["Doe" "Jane" "Female" "red" "01/02/2000"]]
+    (let [people-data [["Smith" "John" "Male" "blue" "1/1/2000"]
+                       ["Doe" "Jane" "Female" "red" "1/2/2000"]]
           people (map p/person people-data)
           result (with-out-str (cli/print-people-state {:people people}))]
       (println result)

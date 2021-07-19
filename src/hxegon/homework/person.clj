@@ -8,7 +8,7 @@
 
 (defrecord Person [lastname firstname gender fav-color dob])
 
-(def dob-format (java.text.SimpleDateFormat. "MM/dd/yyyy"))
+(def dob-format (java.text.SimpleDateFormat. "M/d/yyyy"))
 
 (defn parse-dob
   "Parse a MM/dd/yyyy formatted date string"

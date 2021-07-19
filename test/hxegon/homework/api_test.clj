@@ -55,4 +55,13 @@
         (is (= 200 (:status get-response))))
       (testing "is reflected in GET /records"
         (is (= "John" (get (first records) :firstname)))))
-    (reset-people)))
+    (reset-people))
+  (testing "GET /records displays a birthdate as M/D/YYYY"
+    (post-records {:delimiter "pipe"
+                   :data "Smith | John | Male | Blue | 01/01/2001"})
+    (let [resp (api/app {:request-method :get
+                         :uri "/records"})
+          first-person (first (m/decode-response-body resp))]
+      (is (= 200 (:status resp)))
+      (is (= "1/1/2001" (:dob first-person)))
+      (reset-people))))
