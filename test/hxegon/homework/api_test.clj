@@ -26,6 +26,9 @@
         request (merge base {:body-params body})]
     (api/app request)))
 
+(defn reset-people []
+  (reset! api/people []))
+
 (deftest records-test
   (testing "GET /records starts with no people"
     (let [request {:request-method :get
@@ -51,4 +54,5 @@
       (testing "get /records is successful"
         (is (= 200 (:status get-response))))
       (testing "is reflected in GET /records"
-        (is (= "John" (get (first records) :firstname)))))))
+        (is (= "John" (get (first records) :firstname)))))
+    (reset-people)))
