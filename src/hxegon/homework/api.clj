@@ -15,9 +15,17 @@
   [person]
   (swap! people conj person))
 
+(defn encode-people
+  "Prep a collection of people for use in a response."
+  [people]
+  (into []
+        (comp (map #(into {} %))
+              (map #(update % :dob p/render-dob)))
+        people))
+
 (defn get-records-handler [_]
   {:status 200
-   :body (into [] (map record->map) @people)})
+   :body (encode-people @people)})
 
 (defn post-records-handler [{{:keys [delimiter data]} :body-params}]
   (if (or (nil? delimiter) (nil? data))
