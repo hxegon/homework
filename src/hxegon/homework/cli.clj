@@ -21,7 +21,6 @@
                "Sorting option must be either lastname, birthdate or gender"]]
 
    ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are 'pipe': ' | ', comma: ', ', or space: ' '. Defaults to pipe"
-    ; TODO: Change from inputing pattern to inputing symbol to lookup as pattern
     :default (:pipe p/delimiters)
     :parse-fn #(->> % string/lower-case keyword)
     :validate [#(key-of-m? p/delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
