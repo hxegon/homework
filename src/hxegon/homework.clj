@@ -1,6 +1,7 @@
 (ns hxegon.homework
   (:require
     [hxegon.homework.cli :as cli]
+    [hxegon.homework.api :as api]
     [clojure.pprint :refer [pprint]])
   (:gen-class))
 
@@ -18,5 +19,7 @@
       (case action
         :read
         (cli/main state)
+        :api
+        (api/main state)
         :debug
         (pprint state)))))

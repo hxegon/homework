@@ -2,13 +2,13 @@
   (:require
     [clojure.set :refer [rename-keys]]
     [clojure.string :as string]
-    [hxegon.homework.internal :refer [safe-parse]])
+    [hxegon.homework.internal :refer [key-of-m? safe-parse]])
   (:import
     (java.io BufferedReader FileReader)))
 
 (defrecord Person [lastname firstname gender fav-color dob])
 
-(def dob-format (java.text.SimpleDateFormat. "MM/dd/yyyy"))
+(def dob-format (java.text.SimpleDateFormat. "M/d/yyyy"))
 
 (defn parse-dob
   "Parse a MM/dd/yyyy formatted date string"
@@ -36,6 +36,12 @@
   {:pipe #" \| "
    :comma #", "
    :space #" "})
+
+(defn line->person
+  [delim line]
+  (if (key-of-m? delimiters delim)
+    (person (string/split line (delim delimiters)))
+    {:error-msg (str "Invalid delimiter value: " delim)}))
 
 (defn read-people-file
   "Takes a filename, reads it and returns a map:
@@ -70,7 +76,14 @@
    (fn gender-sorter [people]
      (->> people
           (sort-by :lastname)
-          (sort-by (comp string/lower-case :gender))))})
+          (sort-by (comp string/lower-case :gender))))
+   :name
+   (fn name-sorter [people]
+     (sort-by #(->> %
+                    ((juxt :firstname :lastname))
+                    (string/join " ")
+                    string/lower-case)
+              people))})
 
 (defn rename-person-keys
   "Updates :people keys to readable strings. Intended for use with print-table."
@@ -81,6 +94,8 @@
                  :fav-color "favorite color"
                  :dob "birthdate"}]
     (rename-keys person key-map)))
+
+; Possible "Renderable" protocol for parse-error and java.util.Date
 
 (defn render-parse-error
   "Returns a readble string version of an error map (keys :file :line :msg)"

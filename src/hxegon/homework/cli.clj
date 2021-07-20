@@ -44,7 +44,8 @@
         "Actions:"
         "read  - reads files specified by one or more -f flags and prints the people from those files"
         "        relevant options: -S (silent) -d (delimiter) -s (sort-by) -f (file)"
-        "debug - print value of initial state. Can use any other options, but not subcommands"
+        "api   - starts an API server, see the relevent section in the README more info"
+        "debug - prints the value of initial state. Can use any other options, but not subcommands"
         ""
         "Options:"
         options-summary
@@ -56,7 +57,8 @@
 (def action-set
   "set of possible actions"
   #{:read
-    :debug})
+    :debug
+    :api})
 
 (defn args->initial-state
   "Takes an option map as returned by parse-opts, validates it and returns

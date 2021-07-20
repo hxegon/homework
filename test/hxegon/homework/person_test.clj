@@ -115,7 +115,7 @@
 
 (deftest render-dob-test
   (testing "Renders dates as M/D/YYYY"
-    (let [date-string "01/01/2001"
+    (let [date-string "1/1/2001"
           dob (:token (p/parse-dob date-string))
           rendered-dob (p/render-dob dob)]
       (is (= date-string rendered-dob)))))

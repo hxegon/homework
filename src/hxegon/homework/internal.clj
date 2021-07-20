@@ -12,3 +12,6 @@
     {:token (.parse fmt string)}
     (catch java.text.ParseException e
       {:error-msg (ex-message e)})))
+
+(defn record->map [record]
+  (into {} record))
