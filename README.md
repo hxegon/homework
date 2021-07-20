@@ -50,6 +50,8 @@ Run the project directly:
 
 Build an executable jar:
 
+    $ echo "ensure there's a 'classes' folder"
+    $ mkdir classes
     $ uberdeps/package.sh
 
 Run that uberjar:
