@@ -1,4 +1,4 @@
-{:paths ["src" "resources"]
+{:paths ["src" "resources" "classes"]
  :deps {org.clojure/clojure {:mvn/version "1.10.3"}
         org.clojure/tools.cli {:mvn/version "1.0.206"}
         ring/ring-core {:mvn/version "1.9.3"}
