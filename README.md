@@ -52,6 +52,8 @@ Build an executable jar:
 
     $ echo "ensure there's a 'classes' folder"
     $ mkdir classes
+    $ echo "compile main class"
+    $ clj -M -e "(compile 'hxegon.homework)"
     $ uberdeps/package.sh
 
 Run that uberjar:
