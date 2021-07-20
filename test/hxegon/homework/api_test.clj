@@ -20,6 +20,13 @@
           response (api/app request)]
       (is (= 404 (:status response))))))
 
+(defn get-records
+  "Test helper function for GET /records.
+  return value is response from api/app"
+  []
+  (api/app {:request-method :get
+            :uri "/records"}))
+
 (defn post-records
   [body]
   (let [base {:request-method :post
@@ -33,10 +40,7 @@
 
 (deftest records-test
   (testing "GET /records starts with no people"
-    (let [request {:request-method :get
-                   :uri "/records"}
-          response (api/app request)
-          body (m/decode "application/json" (:body response))]
+    (let [body (m/decode-response-body (get-records))]
       (is (= [] body))))
   (testing "POST /records returns 400 without required params keys"
     (is (= 400 (:status (post-records {:delimiter "pipe"}))))
@@ -44,25 +48,21 @@
   (testing "POST /records returns 422 bad param values with invalid delimiter"
     (is (= 422 (:status (post-records {:delimiter "invalid" :data "not evaluated"})))))
   (testing "POST /records with good person data"
-    (let [post-response (post-records {:delimiter "pipe"
-                                       :data "Smith | John | Male | Blue | 01/01/2001"})
-          get-response (api/app {:request-method :get
-                                 :uri "/records"})
-          records (->> get-response
-                       :body
-                       (m/decode "application/json"))]
+    (let [post-resp (post-records {:delimiter "pipe"
+                                   :data "Smith | John | Male | Blue | 01/01/2001"})
+          get-resp (get-records)
+          records (m/decode-response-body get-resp)]
       (testing "is successful"
-        (is (= 200 (:status post-response))))
+        (is (= 200 (:status post-resp))))
       (testing "get /records is successful"
-        (is (= 200 (:status get-response))))
+        (is (= 200 (:status get-resp))))
       (testing "is reflected in GET /records"
         (is (= "John" (get (first records) :firstname)))))
     (reset-people))
   (testing "GET /records displays a birthdate as M/D/YYYY"
     (post-records {:delimiter "pipe"
                    :data "Smith | John | Male | Blue | 01/01/2001"})
-    (let [resp (api/app {:request-method :get
-                         :uri "/records"})
+    (let [resp (get-records)
           first-person (first (m/decode-response-body resp))]
       (is (= 200 (:status resp)))
       (is (= "1/1/2001" (:dob first-person)))
