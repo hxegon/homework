@@ -20,8 +20,8 @@
     :validate [#(key-of-m? p/people-sorters %) ; input to validate fn is output of parse-fn (a lower case keyword)
                "Sorting option must be either lastname, birthdate or gender"]]
 
-   ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are 'pipe': ' | ', comma: ', ', or space: ' '. Defaults to pipe"
-    :default (:pipe p/delimiters)
+   ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are pipe, comma, or space. Defaults to pipe"
+    :default :pipe
     :parse-fn #(->> % string/lower-case keyword)
     :validate [#(key-of-m? p/delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
