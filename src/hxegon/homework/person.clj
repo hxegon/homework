@@ -51,7 +51,7 @@
          (into [{:errors [] :people []}]
                (map (fn [line-info]
                       (let [[line line-number] line-info
-                            result (person (string/split line delim))]
+                            result (line->person delim line)]
                         (if (:error-msg result)
                           {:errors {:file file-name :line line-number :msg (:error-msg result)}}
                           {:people result}))))

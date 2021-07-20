@@ -28,7 +28,7 @@
                     (string/join \newline))]
     (with-open [wrtr (clojure.java.io/writer tempfile)]
       (.write wrtr people))
-    (let [results (p/read-people-file (:pipe p/delimiters) filepath)]
+    (let [results (p/read-people-file :pipe filepath)]
       (testing "correct number of people and errors"
         (is (->> results :people count (= 1)))
         (is (->> results :errors count (= 1))))
@@ -51,7 +51,7 @@
       (.write wrtr person-1))
     (with-open [wrtr (clojure.java.io/writer tempfile-2)]
       (.write wrtr person-2))
-    (let [results (p/read-people-files (:pipe p/delimiters) [filepath-1 filepath-2])]
+    (let [results (p/read-people-files :pipe [filepath-1 filepath-2])]
       (testing "both people in results with no errors"
         (is (= [] (:errors results)))
         (is (->> results :people first :firstname (= "Jane")))
