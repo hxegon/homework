@@ -14,3 +14,4 @@
 .hgignore
 .hg/
 .clj-kondo
+/uberdeps/.cpcache
