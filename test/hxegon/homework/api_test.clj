@@ -38,6 +38,30 @@
 (defn reset-people []
   (reset! api/people []))
 
+(defmacro with-people
+  "Runs body against a api/people value set to ps, then pops the previous state of api/people back.
+  THREADSAFETY IS NOT GUARANTEED
+  Ex:
+  ; with empty @people
+  (with-people [(p/line->person :pipe \"Smith | John | Male | Blue | 01/01/2000\")]
+    (is (= 1 (count (m/decode-response-body (get-records)))))
+  ; @people will go back to being empty after with-people"
+  [ps & body]
+  `(let [people-bak# @api/people]
+     (try
+       (do (reset! api/people ~ps)
+           ~@body)
+       (finally (reset! api/people people-bak#)))))
+
+(deftest with-people-helper-test
+  (testing "sets api/people state back to previous"
+    (reset-people)
+    (api/add-person (p/person ["Foo" "Jake" "Male" "Red" "01/02/2001"]))
+    (with-people [(p/line->person :pipe "Smith | John | Male | Blue | 01/01/2000")]
+      (is (= "John" (->> (get-records) m/decode-response-body first :firstname))))
+    (is (= "Jake" (->> (get-records) m/decode-response-body first :firstname)))
+    (reset-people)))
+
 (deftest records-test
   (testing "GET /records starts with no people"
     (let [body (m/decode-response-body (get-records))]
@@ -60,13 +84,11 @@
         (is (= "John" (get (first records) :firstname)))))
     (reset-people))
   (testing "GET /records displays a birthdate as M/D/YYYY"
-    (post-records {:delimiter "pipe"
-                   :data "Smith | John | Male | Blue | 01/01/2001"})
-    (let [resp (get-records)
-          first-person (first (m/decode-response-body resp))]
-      (is (= 200 (:status resp)))
-      (is (= "1/1/2001" (:dob first-person)))
-    (reset-people))))
+    (with-people [(p/person ["Smith" "John" "Male" "Blue" "01/01/2001"])]
+      (let [resp (get-records)
+            first-person (first (m/decode-response-body resp))]
+        (is (= 200 (:status resp)))
+        (is (= "1/1/2001" (:dob first-person)))))))
 
 (defn sorted-records
   [method]
@@ -81,20 +103,19 @@
         ["Zed" "Jake" "Male" "Green" "01/01/1999"]]))
 
 (deftest sorted-records-test
-  (run! api/add-person test-people)
-  (testing "/records/gender sorts people by gender, female, then male and then by last name"
-    (let [resp (sorted-records "gender")]
-      (is (= 200 (:status resp)))
-      (is (= ["Jane" "John" "Jake"]
-             (map :firstname (m/decode-response-body resp))))))
-  (testing "/records/name returns records sorted by firstname lastname (ascending)"
-    (let [resp (sorted-records "name")]
-      (is (= 200 (:status resp)))
-      (is (= ["Jake" "Jane" "John"]
-             (map :firstname (m/decode-response-body resp))))))
-  (testing "/records/birthdate returns records sorted by birthdate (ascending)"
-    (let [resp (sorted-records "birthdate")]
-      (is (= 200 (:status resp)))
-      (is (= ["Jake" "John" "Jane"]
-             (map :firstname (m/decode-response-body resp))))))
-  (reset-people))
+  (with-people test-people
+    (testing "/records/gender sorts people by gender, female, then male and then by last name"
+      (let [resp (sorted-records "gender")]
+        (is (= 200 (:status resp)))
+        (is (= ["Jane" "John" "Jake"]
+               (map :firstname (m/decode-response-body resp))))))
+    (testing "/records/name returns records sorted by firstname lastname (ascending)"
+      (let [resp (sorted-records "name")]
+        (is (= 200 (:status resp)))
+        (is (= ["Jake" "Jane" "John"]
+               (map :firstname (m/decode-response-body resp))))))
+    (testing "/records/birthdate returns records sorted by birthdate (ascending)"
+      (let [resp (sorted-records "birthdate")]
+        (is (= 200 (:status resp)))
+        (is (= ["Jake" "John" "Jane"]
+               (map :firstname (m/decode-response-body resp))))))))
