@@ -38,7 +38,7 @@
 (defn usage [options-summary]
   (->> ["HOMEWORK: Person information utility"
         ""
-        "USAGE: program-name <action (by default read)> [options]"
+        "USAGE: program-name <action> [options]"
         ""
         "Actions:"
         "read  - reads files specified by one or more -f flags and prints the people from those files"
@@ -73,8 +73,8 @@
       {:ok? true :exit-message use-msg}
       errors
       {:ok? false :exit-message (error-message errors)}
-      (> arg-n 1)
-      {:ok? false :exit-message (str "Too many arguments" \newline use-msg)}
+      (not= arg-n 1)
+      {:ok? false :exit-message (str "There should only be one action argument" \newline use-msg)}
       (not (action-set action))
       {:ok? false :exit-message (str "Argument " action " isn't a possible subcommand." \newline use-msg)}
       (and (= action :read) (->> options :file empty?))

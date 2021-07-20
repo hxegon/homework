@@ -52,17 +52,13 @@
     (let [state (cli/args->initial-state [])]
       (is (->> state :ok? not))
       (is (->> state :exit-message empty? not))))
-  (testing "with minimum valid input, no errrors"
-    (let [state (cli/args->initial-state ["-f" "deps.edn"])]
+  (testing "with a valid input, no errrors"
+    (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
       (is (->> state :options nil? not))
       (is (->> state :exit-message nil?))))
-  (testing "has an :action of :read"
-    (testing "with no arguments"
-    (let [state (cli/args->initial-state ["-f" "deps.edn"])]
+  (testing "has an :action of :read with a 'read' argument"
+    (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
       (is (= :read (:action state)))))
-    (testing "with a 'read' argument"
-      (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
-        (is (= :read (:action state))))))
   (testing "with invalid action, :ok? false and :exit-message mentioning bad action"
     (let [state (cli/args->initial-state ["wrong"])]
       (is (not (:ok? state)))
