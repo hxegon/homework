@@ -7,18 +7,7 @@
    [clojure.string :as string]
    [hxegon.homework.person :as p]))
 
-(deftest routing-sanity-test
-  (testing "200 response for"
-    (testing "GET /records"
-      (let [request {:request-method :get
-                     :uri "/records"}
-            response (api/app request)]
-        (is (= 200 (:status response))))))
-  (testing "404 response for GET /non-existent-route"
-    (let [request {:request-method :get
-                   :uri "/non-existant-route"}
-          response (api/app request)]
-      (is (= 404 (:status response))))))
+;; Helpers
 
 (defn get-records
   "Test helper function for GET /records.
@@ -28,11 +17,22 @@
             :uri "/records"}))
 
 (defn post-records
+  "Test helper function for POSTing to /records endpoint.
+  body is merged into a request as the value for :body-params
+  response from api/app is returned"
   [body]
   (let [base {:request-method :post
               :uri "/records"
               :headers {"content-type" "application/json"}}
         request (merge base {:body-params body})]
+    (api/app request)))
+
+(defn sorted-records
+  "Test helper function for GETting /records/<method> endpoints
+  response value from api/app is returned"
+  [method]
+  (let [request {:request-method :get
+                 :uri (str "/records/" method)}]
     (api/app request)))
 
 (defn reset-people []
@@ -53,6 +53,8 @@
            ~@body)
        (finally (reset! api/people people-bak#)))))
 
+;; Helper tests
+
 (deftest with-people-helper-test
   (testing "sets api/people state back to previous"
     (reset-people)
@@ -61,6 +63,21 @@
       (is (= "John" (->> (get-records) m/decode-response-body first :firstname))))
     (is (= "Jake" (->> (get-records) m/decode-response-body first :firstname)))
     (reset-people)))
+
+;; API tests
+
+(deftest routing-sanity-test
+  (testing "200 response for"
+    (testing "GET /records"
+      (let [request {:request-method :get
+                     :uri "/records"}
+            response (api/app request)]
+        (is (= 200 (:status response))))))
+  (testing "404 response for GET /non-existent-route"
+    (let [request {:request-method :get
+                   :uri "/non-existant-route"}
+          response (api/app request)]
+      (is (= 404 (:status response))))))
 
 (deftest records-test
   (testing "GET /records starts with no people"
@@ -89,12 +106,6 @@
             first-person (first (m/decode-response-body resp))]
         (is (= 200 (:status resp)))
         (is (= "1/1/2001" (:dob first-person)))))))
-
-(defn sorted-records
-  [method]
-  (let [request {:request-method :get
-                 :uri (str "/records/" method)}]
-    (api/app request)))
 
 (def test-people
   (map p/person
