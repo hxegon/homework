@@ -8,12 +8,13 @@
     [hxegon.homework.person :as p]))
 
 (def options
-  [["-f" "--file FILE" "Input file"
+  [["-f" "--file FILE" "Input file, with the order of fields being last name, first name, gender, favorite color, and birthdate"
     :multi true ; Can specify multiple files
     :default []
-    :update-fn conj ; join values with default into list of files
+    :update-fn conj
     :validate [#(.exists (io/file %)) "Input file doesn't exist"]]
 
+   ;; TODO: make default sort method :none, add :none sorter that just returns coll in same order as input
    ["-s" "--sort METHOD" "Sorting method. Either lastname, birthdate, or gender (defaults to lastname)."
     :default :lastname
     :parse-fn #(->> % string/lower-case keyword)
@@ -54,15 +55,21 @@
        (string/join \newline)))
 
 (def action-set
-  "set of possible actions"
+  "set of subcommand keywords"
   #{:read
     :debug
     :api})
 
+;; FIXME: api action accepts any options but it doesn't use any
 (defn args->initial-state
-  "Takes an option map as returned by parse-opts, validates it and returns
-  a map indicating the action the program should take. Includes an optional
-  status key, :ok?, and an :exit-message key if the program should exit."
+  "Takes a coll of cli arguments (as in [& args] in -main), and returns an initial application
+  state map.
+  Keys:
+   :action       - a keyword that's member of hxegon.homework.cli/action-set indicating what action the program should take
+   :options      - a map of flags and their values as parsed by clojure.tools.cli/parse-opts
+   :summary      - a program summary string
+   :exit-message - presence indicates the program should exit, printing this message
+   :ok?          - boolean indicating whether exit code should be successful or not"
   [args]
   (let [{:keys [options arguments errors summary] :as state} (parse-opts args options)
         action (or (-> arguments first keyword) :read)
@@ -75,15 +82,17 @@
       (not= 1 (count arguments))
       {:ok? false :exit-message (str "There should only be one action argument" \newline use-msg)}
       (not (action-set action))
-      {:ok? false :exit-message (str "Argument " action " isn't a possible subcommand." \newline use-msg)}
+      {:ok? false :exit-message (str "Argument " action " isn't a possible action." \newline use-msg)}
       (and (= action :read) (->> options :file empty?))
       {:ok? false :exit-message "You must specify one or more files using -f or --file when you're use read"}
       :else
       (assoc state :action action))))
 
+;; TODO : print errors to STDERR. This breaks the tests in a way that's not straightforward to fix...
+;; because we would be binding *out* to a stringio in the test but errors would be printed to *err*
+;; might have to refactor
 (defn print-people-state
-  "Print people as a table, with more readable field names and errors (-> state :options :silent)
-  takes keys :people [Person], :errors [{ :file :line :msg }], and :options { :silent bool }"
+  "Print a state map, prints the contained people as a table and any errors unless :silent is true in :options"
   [{:keys [people errors options] :as _state}]
   (let [silent (:silent options)
         readable-people (->> people

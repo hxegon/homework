@@ -5,6 +5,8 @@
 
 (def valid-person-args ["last-name" "first-name" "male" "blue" "01/01/2000"])
 
+;; TODO: extract with-tempfile helper macro
+
 (deftest person-test
   (testing "with incorrect number of fields returns error"
     (let [p (p/person (conj valid-person-args "extra arg"))]
@@ -60,8 +62,6 @@
     (.delete tempfile-2)))
 
 (deftest people-sorters-test
-  (testing "Every comparer is an instance of java.util.Comparator" ; all functions are Comparator instances so this doesn't say much :()
-    (is (every? #(instance? java.util.Comparator %) (vals p/people-sorters))))
   (testing "birthdate sorts people by their DOB (ascending)"
     (let [people (map p/person
                       [["Smith" "First" "m" "Blue" "12/25/1999"]
@@ -95,7 +95,6 @@
     (let [john (p/person ["Smith" "John" "Male" "blue" "01/01/2001"])
           bdate (:dob john)
           readable-john (p/rename-person-keys john)]
-      (println readable-john)
       (is (= ["Smith" "John" "Male" "blue" bdate]
              (map #(get readable-john %)
                   ["last name"

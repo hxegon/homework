@@ -10,7 +10,8 @@
   (System/exit (if ok 0 1)))
 
 (defn -main
-  "Parses args and either exits or dispatches to main functions of backends"
+  "Parses args into initial state and either exits with a message or runs an
+  action, passing the state to the action"
   [& args]
   (let [state (cli/args->initial-state args)
         {:keys [ok? exit-message action]} state]

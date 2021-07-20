@@ -39,13 +39,13 @@
   (reset! api/people []))
 
 (defmacro with-people
-  "Runs body against a api/people value set to ps, then pops the previous state of api/people back.
+  "Runs the body against an api/people value set to ps, then pops back to the previous state of api/people
   THREADSAFETY IS NOT GUARANTEED
   Ex:
-  ; with empty @people
+  ; starting with empty @people
   (with-people [(p/line->person :pipe \"Smith | John | Male | Blue | 01/01/2000\")]
     (is (= 1 (count (m/decode-response-body (get-records)))))
-  ; @people will go back to being empty after with-people"
+  ; @people is back to being empty"
   [ps & body]
   `(let [people-bak# @api/people]
      (try
@@ -56,7 +56,7 @@
 ;; Helper tests
 
 (deftest with-people-helper-test
-  (testing "sets api/people state back to previous"
+  (testing "saves people's state, changes it to given argument and sets it back after"
     (reset-people)
     (api/add-person (p/person ["Foo" "Jake" "Male" "Red" "01/02/2001"]))
     (with-people [(p/line->person :pipe "Smith | John | Male | Blue | 01/01/2000")]

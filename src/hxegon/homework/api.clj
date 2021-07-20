@@ -11,12 +11,13 @@
 (def people (atom []))
 
 (defn add-person
-  "Add a person. Wraps the semantics of atom operations. Threadsafe."
+  "Add a person to the people atom"
   [person]
   (swap! people conj person))
 
 (defn encode-people
-  "Prep a collection of people for use in a response."
+  "takes a coll of people records and encodes them into a representation more
+  suitable for use in a response body"
   [people]
   (into []
         (comp (map #(into {} %))
@@ -40,6 +41,8 @@
              :body "Person added successfully"})))))
 
 (defn mk-sorted-records-handler
+  "Takes a fn that sorts people and returns a request handler fn that contains
+  the contents of people sorted by that fn"
   [sorter]
   (fn sorted-records-handler [_]
     {:status 200
@@ -64,6 +67,7 @@
     {:not-found not-found-handler})))
 
 (defn main
+  "Prints starting message and runs server on port 3000"
   [_state]
   (println "starting api server...")
   (jetty/run-jetty app

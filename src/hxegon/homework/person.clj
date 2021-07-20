@@ -19,32 +19,27 @@
   "Constructor for Person with validation. Returns either Person or map with :errors"
   [args]
   (if (not= 5 (count args))
-    {:error-msg (str "Expected 5 arguments but got " (count args) " from " (string/join ", " args))}
+    {:error-msg (str "Expected 5 values but got " (count args) " from " (string/join ", " args))}
     (let [[lastname firstname gender fav-color dob-string] args
           dob (parse-dob dob-string)]
       (if (:error-msg dob)
         dob
         (->Person lastname firstname gender fav-color (:token dob))))))
 
-; NOTE: In the initial version, the -d option just accepted a string for use
-; as the argument to string/split, but " | " produced unexpected behaviour.
-; string/split only accepts a regex, and | is a special character.
-; Forcing the user to know about Java's regex escape character rules,
-; or the differences between re-pattern and clojure's regex literal (#"pattern")
-; struck me as poor UX, so here we are looking up a keyword for a known regex.
 (def delimiters
   {:pipe #" \| "
    :comma #", "
    :space #" "})
 
 (defn line->person
+  "parse a line into a person. returns either a person or {:error-msg string}"
   [delim line]
   (if (key-of-m? delimiters delim)
     (person (string/split line (delim delimiters)))
     {:error-msg (str "Invalid delimiter value: " delim)}))
 
 (defn read-people-file
-  "Takes a filename, reads it and returns a map:
+  "Takes a delimiter key and a filepath string, reads it and returns a map:
   { :people [Person] :errors [{:file string :line integer :msg string}] }"
   [delim file-name]
   (->> (with-open [rdr (BufferedReader. (FileReader. file-name))]
@@ -59,13 +54,14 @@
        (apply merge-with conj))) ; FIXME: This line is inefficient
 
 (defn read-people-files
-  "Reads a collection of people files and merges the results"
+  "Reads a delimiter and a collection of people filepath strings and merges the results"
   [delim file-names]
   (->> file-names
        (map #(read-people-file delim %))
        (apply merge-with concat)))
 
 (def people-sorters
+  "map of fns that sort collections of people"
   {:lastname
    (fn lastname-sorter [people]
      (reverse (sort-by :lastname people)))
@@ -86,7 +82,7 @@
               people))})
 
 (defn rename-person-keys
-  "Updates :people keys to readable strings. Intended for use with print-table."
+  "Updates :people keys to readable strings. Intended for use with pprint/print-table."
   [person]
   (let [key-map {:firstname "first name"
                  :lastname "last name"
@@ -95,15 +91,13 @@
                  :dob "birthdate"}]
     (rename-keys person key-map)))
 
-; Possible "Renderable" protocol for parse-error and java.util.Date
-
 (defn render-parse-error
-  "Returns a readble string version of an error map (keys :file :line :msg)"
+  "Returns a readble string version of an error map ({:file :line :msg})"
   [{:keys [file line msg]}]
   (format "In file %s, line %d: %s" file line msg))
 
 (defn render-dob
-  "Renders a person's dob as M/D/YYYY"
+  "Renders a date according to dob-format"
   [date]
   (.format dob-format date))
 
