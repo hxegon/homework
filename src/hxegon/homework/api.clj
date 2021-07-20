@@ -4,7 +4,7 @@
    [reitit.ring :as ring]
    [muuntaja.core :as m]
    [reitit.ring.middleware.muuntaja :as m-middle]
-   [hxegon.homework.internal :refer [record->map key-of-m?]]
+   [hxegon.homework.internal :refer [key-of-m?]]
    [hxegon.homework.person :as p]
    [clojure.string :as string]))
 
