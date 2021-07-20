@@ -70,7 +70,6 @@
                        ["Doe" "Jane" "Female" "red" "1/2/2000"]]
           people (map p/person people-data)
           result (with-out-str (cli/print-people-state {:people people}))]
-      (println result)
       (is (->> (flatten people-data)
                (map #(string/includes? result %))
                (every? identity)))))
@@ -78,7 +77,6 @@
     (let [errors [{:file "foo.txt" :line 1 :msg "barbaz"}]
           error-data (->> errors first vals (map str))
           result (with-out-str (cli/print-people-state {:errors errors}))]
-      (println result)
       (is (->> error-data
                (map #(string/includes? result %))
                (every? identity)))

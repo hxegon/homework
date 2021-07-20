@@ -17,9 +17,6 @@
     (if exit-message
       (exit ok? exit-message)
       (case action
-        :read
-        (cli/main state)
-        :api
-        (api/main state)
-        :debug
-        (pprint state)))))
+        :read (cli/main state)
+        :api (api/main state)
+        :debug (pprint state)))))

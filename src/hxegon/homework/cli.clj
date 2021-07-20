@@ -65,7 +65,6 @@
   status key, :ok?, and an :exit-message key if the program should exit."
   [args]
   (let [{:keys [options arguments errors summary] :as state} (parse-opts args options)
-        arg-n (count arguments)
         action (or (-> arguments first keyword) :read)
         use-msg (usage summary)]
     (cond
@@ -73,7 +72,7 @@
       {:ok? true :exit-message use-msg}
       errors
       {:ok? false :exit-message (error-message errors)}
-      (not= arg-n 1)
+      (not= 1 (count arguments))
       {:ok? false :exit-message (str "There should only be one action argument" \newline use-msg)}
       (not (action-set action))
       {:ok? false :exit-message (str "Argument " action " isn't a possible subcommand." \newline use-msg)}
@@ -93,7 +92,7 @@
         error-msgs (when errors (map p/render-parse-error errors))]
     (print-table readable-people)
     (when (and (not silent) (->> errors empty? not))
-      (do (println) ; empty line between people table and errors
+      (do (println)                 ; empty line between people table and errors
           (doseq [error-msg error-msgs]
             (println error-msg))))))
 

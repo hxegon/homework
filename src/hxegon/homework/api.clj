@@ -30,14 +30,14 @@
 (defn post-records-handler [{{:keys [delimiter data]} :body-params}]
   (if (or (nil? delimiter) (nil? data))
     {:status 400
-     :body "<h1>An expected key (:delimiter or :data) was missing from the body</h1>"}
+     :body "An expected key (:delimiter or :data) was missing from the body"}
     (let [{:keys [error-msg] :as result} (p/line->person (keyword delimiter) data)]
       (if error-msg
         {:status 422
-         :body (format "<h1>Couldn't parse data into person</h1>\n%s" error-msg)}
+         :body (format "Data was not parsable as a person:\n%s" error-msg)}
         (do (add-person result)
             {:status 200
-             :body "<h1>Person added successfully</h1>"})))))
+             :body "Person added successfully"})))))
 
 (defn mk-sorted-records-handler
   [sorter]
