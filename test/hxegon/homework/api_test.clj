@@ -1,9 +1,11 @@
 (ns hxegon.homework.api-test
   (:require
-    [clojure.test :refer [deftest testing is]]
-    [hxegon.homework.api :as api]
-    [muuntaja.core :as m]
-    [clojure.pprint :as pp]))
+   [clojure.test :refer [deftest testing is]]
+   [hxegon.homework.api :as api]
+   [muuntaja.core :as m]
+   [clojure.pprint :as pp]
+   [clojure.string :as string]
+   [hxegon.homework.person :as p]))
 
 (deftest routing-sanity-test
   (testing "200 response for"
@@ -64,4 +66,35 @@
           first-person (first (m/decode-response-body resp))]
       (is (= 200 (:status resp)))
       (is (= "1/1/2001" (:dob first-person)))
-      (reset-people))))
+    (reset-people))))
+
+(defn sorted-records
+  [method]
+  (let [request {:request-method :get
+                 :uri (str "/records/" method)}]
+    (api/app request)))
+
+(def test-people
+  (map p/person
+       [["Smith" "John" "Male" "Blue" "01/01/2000"]
+        ["Doe" "Jane" "Female" "Red" "01/02/2000"]
+        ["Zed" "Jake" "Male" "Green" "01/01/1999"]]))
+
+(deftest sorted-records-test
+  (run! api/add-person test-people)
+  (testing "/records/gender sorts people by gender, female, then male and then by last name"
+    (let [resp (sorted-records "gender")]
+      (is (= 200 (:status resp)))
+      (is (= ["Jane" "John" "Jake"]
+             (map :firstname (m/decode-response-body resp))))))
+  (testing "/records/name returns records sorted by firstname lastname (ascending)"
+    (let [resp (sorted-records "name")]
+      (is (= 200 (:status resp)))
+      (is (= ["Jake" "Jane" "John"]
+             (map :firstname (m/decode-response-body resp))))))
+  (testing "/records/birthdate returns records sorted by birthdate (ascending)"
+    (let [resp (sorted-records "birthdate")]
+      (is (= 200 (:status resp)))
+      (is (= ["Jake" "John" "Jane"]
+             (map :firstname (m/decode-response-body resp))))))
+  (reset-people))

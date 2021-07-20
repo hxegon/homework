@@ -76,7 +76,14 @@
    (fn gender-sorter [people]
      (->> people
           (sort-by :lastname)
-          (sort-by (comp string/lower-case :gender))))})
+          (sort-by (comp string/lower-case :gender))))
+   :name
+   (fn name-sorter [people]
+     (sort-by #(->> %
+                    ((juxt :firstname :lastname))
+                    (string/join " ")
+                    string/lower-case)
+              people))})
 
 (defn rename-person-keys
   "Updates :people keys to readable strings. Intended for use with print-table."
@@ -87,6 +94,8 @@
                  :fav-color "favorite color"
                  :dob "birthdate"}]
     (rename-keys person key-map)))
+
+; Possible "Renderable" protocol for parse-error and java.util.Date
 
 (defn render-parse-error
   "Returns a readble string version of an error map (keys :file :line :msg)"

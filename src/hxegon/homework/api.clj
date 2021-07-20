@@ -39,20 +39,29 @@
             {:status 200
              :body "<h1>Person added successfully</h1>"})))))
 
+(defn mk-sorted-records-handler
+  [sorter]
+  (fn sorted-records-handler [_]
+    {:status 200
+     :body (encode-people (sorter @people))}))
+
 (defn not-found-handler [{:keys [uri]}]
   {:status 404
    :body (format "Could not find page at route %s" uri)})
 
 (def app
   (ring/ring-handler
-    (ring/router
-      ["/records"
-       ["" {:get get-records-handler
-            :post post-records-handler}]]
-      {:data {:muuntaja m/instance
-              :middleware [m-middle/format-middleware]}})
-    (ring/create-default-handler
-      {:not-found not-found-handler})))
+   (ring/router
+    ["/records"
+     ["" {:get get-records-handler
+          :post post-records-handler}]
+     ["/gender" {:get (mk-sorted-records-handler (:gender p/people-sorters))}]
+     ["/name" {:get (mk-sorted-records-handler (:name p/people-sorters))}]
+     ["/birthdate" {:get (mk-sorted-records-handler (:birthdate p/people-sorters))}]]
+    {:data {:muuntaja m/instance
+            :middleware [m-middle/format-middleware]}})
+   (ring/create-default-handler
+    {:not-found not-found-handler})))
 
 (defn main
   [_state]
