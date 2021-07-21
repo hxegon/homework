@@ -6,8 +6,7 @@
         metosin/reitit {:mvn/version "0.5.13"}
         metosin/muuntaja {:mvn/version "0.6.8"}}
  :aliases
- {:run-m {:main-opts ["-m" "hxegon.homework"]
-          :jvm-opts ["-Dorg.eclipse.jetty.util.log.announce=false"]}
+ {:run-m {:main-opts ["-m" "hxegon.homework"]}
   :run-x {:ns-default hxegon.homework
           :exec-fn greet
           :exec-args {:name "Clojure"}}

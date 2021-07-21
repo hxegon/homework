@@ -72,6 +72,7 @@ Generate coverage files, show coverage:
 
 - [ ] `api` currently accepts any options even if they silently do nothing
 - [ ] `read` doesn't print errors to STDERR
+- [x] When using the compiled JAR, jetty announces logging even if not using the api subcommand
 
 ## License
 
