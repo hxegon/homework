@@ -6,22 +6,28 @@
     [clojure.pprint :refer [print-table]]
     [hxegon.homework.person :as p]))
 
+(defn- filepath-exists? [pathstr]
+  (.exists (io/file pathstr)))
+
+(defn- parse-keyword [s]
+  (->> s string/lower-case keyword))
+
 (def options
   [["-f" "--file FILE" "Input file, with the order of fields being last name, first name, gender, favorite color, and birthdate"
     :multi true ; Can specify multiple files
     :default []
     :update-fn conj
-    :validate [#(.exists (io/file %)) "Input file doesn't exist"]]
+    :validate [filepath-exists? "Input file doesn't exist"]]
 
    ;; TODO: make default sort method :none, add :none sorter that just returns coll in same order as input
    ["-s" "--sort METHOD" "Sorting method. Either lastname, birthdate, or gender (defaults to lastname)."
     :default :lastname
-    :parse-fn #(->> % string/lower-case keyword)
+    :parse-fn parse-keyword
     :validate [p/valid-sorter? "Sorting option must be either lastname, birthdate or gender"]]
 
    ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are pipe, comma, or space. Defaults to pipe"
     :default :pipe
-    :parse-fn #(->> % string/lower-case keyword)
+    :parse-fn parse-keyword
     :validate [p/valid-delimiter? "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
    ["-S" "--silent" "Suppress any parsing errors and skip the lines that have issues"
