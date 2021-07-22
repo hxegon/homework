@@ -19,9 +19,12 @@
       (let [parsed (parse-options ["-f" "deps.edn" "-f" "README.md"])]
         (is (= 2 (count (get-in parsed [:options :file])))))))
   (testing "-F"
-    (testing "with valid input doesn't cause error"
-      (let [parsed (parse-options ["-F" "pipe:deps.edn"])]
-        (is (->> parsed :errors empty?))))
+    (testing "with valid input doesn't cause error, is parsed correctly"
+      (let [parsed (parse-options ["-F" "pipe:deps.edn"])
+            spec (->> parsed :options :filespec first)]
+        (is (->> parsed :errors empty?))
+        (is (= :pipe (:delimiter spec)))
+        (is (= "deps.edn" (:filepath spec)))))
     (testing "rejects input lacking a colon"
       (let [parsed (parse-options ["-F" "pipedeps.edn"])]
         (is (->> parsed :errors empty? not))))
