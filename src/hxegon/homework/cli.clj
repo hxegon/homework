@@ -4,7 +4,6 @@
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
     [clojure.pprint :refer [print-table]]
-    [hxegon.homework.internal :refer [key-of-m?]]
     [hxegon.homework.person :as p]))
 
 (def options
@@ -18,13 +17,12 @@
    ["-s" "--sort METHOD" "Sorting method. Either lastname, birthdate, or gender (defaults to lastname)."
     :default :lastname
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#(key-of-m? p/people-sorters %) ; input to validate fn is output of parse-fn (a lower case keyword)
-               "Sorting option must be either lastname, birthdate or gender"]]
+    :validate [p/valid-sorter? "Sorting option must be either lastname, birthdate or gender"]]
 
    ["-d" "--delimiter DELIM" "Field delimiter keyword. Options are pipe, comma, or space. Defaults to pipe"
     :default :pipe
     :parse-fn #(->> % string/lower-case keyword)
-    :validate [#(key-of-m? p/delimiters %) "Delimiter keyword needs to be one of the words pipe, comma or space"]]
+    :validate [p/valid-delimiter? "Delimiter keyword needs to be one of the words pipe, comma or space"]]
 
    ["-S" "--silent" "Suppress any parsing errors and skip the lines that have issues"
     :default false]

@@ -31,10 +31,13 @@
    :comma #", "
    :space #" "})
 
+(defn valid-delimiter? [d]
+  (key-of-m? delimiters d))
+
 (defn line->person
   "parse a line into a person. returns either a person or {:error-msg string}"
   [delim line]
-  (if (key-of-m? delimiters delim)
+  (if (valid-delimiter? delim)
     (person (string/split line (delim delimiters)))
     {:error-msg (str "Invalid delimiter value: " delim)}))
 
@@ -80,6 +83,9 @@
                     (string/join " ")
                     string/lower-case)
               people))})
+
+(defn valid-sorter? [s]
+  (key-of-m? people-sorters s))
 
 (defn rename-person-keys
   "Updates :people keys to readable strings. Intended for use with pprint/print-table."
