@@ -25,8 +25,6 @@ clone https://github.com/hxegon/homework, dependencies will be downloaded as the
 `/records/gender` - GET a list of people sorted by gender (female then male, then by last name ascending)  
 `/records/birthdate` - GET a list of people sorted by date of birth (ascending)
 
-`debug` pretty prints the initial application state map
-
 ### Options
 
 Use the `-h` flag to see a detailed description of the options
@@ -72,6 +70,7 @@ Generate coverage files, show coverage:
 
 - [ ] `api` currently accepts any options even if they silently do nothing
 - [ ] `read` doesn't print errors to STDERR
+- [x] `debug` doesn't always work and should be an option
 - [x] When using the compiled JAR, jetty announces logging even if not using the api subcommand
 
 ### TODO

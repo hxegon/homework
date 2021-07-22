@@ -55,6 +55,10 @@
       (is (->> parsed :options :silent)))))
 
 (deftest args->initial-state-test
+  (testing "--debug is :ok? with type :debug"
+    (let [state (cli/args->initial-state ["--debug"])]
+      (is (:ok? state))
+      (is (= :debug (:exit-type state)))))
   (testing "-h/--help is :ok?, :help type, and :exit-message"
     (let [state (cli/args->initial-state ["-h"])]
       (is (:ok? state))

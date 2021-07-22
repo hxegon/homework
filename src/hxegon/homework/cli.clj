@@ -3,7 +3,7 @@
     [clojure.java.io :as io]
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
-    [clojure.pprint :refer [print-table]]
+    [clojure.pprint :refer [pprint print-table]]
     [hxegon.homework.person :as p]))
 
 (defn- filepath-exists? [pathstr]
@@ -44,7 +44,10 @@
    ["-S" "--silent" "Suppress any parsing errors and skip the lines that have issues"
     :default false]
 
-   ["-h" "--help"]])
+   ["-h" "--help"]
+
+   [nil "--debug" "Pretty print initial app state map"
+    :default false]])
 
 (defn error-message [errors]
   (string/join
@@ -60,7 +63,6 @@
         "read  - reads files specified by one or more -f flags and prints the people from those files"
         "        relevant options: -S (silent) -d (delimiter) -s (sort-by) -f (file) -F (<delimiter>:<filepath>)"
         "api   - starts an API server, see the relevent section in the README more info"
-        "debug - prints the value of initial state. Can use any other options, but not subcommands"
         ""
         "Options:"
         options-summary
@@ -72,7 +74,6 @@
 (def action-set
   "set of subcommand keywords"
   #{:read
-    :debug
     :api})
 
 ;; FIXME: api action accepts any options but it doesn't use any
@@ -90,6 +91,9 @@
         action (or (-> arguments first keyword) :read)
         use-msg (usage summary)]
     (cond
+      (:debug options)
+      (do (->> args (filter #(not= "--debug" %)) args->initial-state pprint)
+          {:ok? true :exit-type :debug :exit-message "Debug mode enabled, printing initial state map."})
       (:help options)
       {:ok? true :exit-type :help :exit-message use-msg}
       errors
