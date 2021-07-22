@@ -56,12 +56,10 @@
                (map vector (line-seq rdr) (map inc (range)))))
        (apply merge-with conj))) ; FIXME: This line is inefficient
 
-(defn read-people-files
-  "Reads a delimiter and a collection of people filepath strings and merges the results"
-  [delim file-names]
-  (->> file-names
-       (map #(read-people-file delim %))
-       (apply merge-with concat)))
+(defn merge-read-results
+  "Merges results from read-people-file, maps of {:people [] :errors []}"
+  [results]
+  (apply merge-with concat results))
 
 (def people-sorters
   "map of fns that sort collections of people"

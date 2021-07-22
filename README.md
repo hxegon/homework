@@ -14,7 +14,7 @@ clone https://github.com/hxegon/homework, dependencies will be downloaded as the
     
 ### Subcommands
 
-`read` takes one or more file paths through -f flags, reads them and prints a table of the collected records, and any associated errors
+`read` takes one or more file paths through -f (one delimiter for all files) or -F (one delimiter specified per file) flags, reads them and prints a table of the collected records, and any associated errors
 
 `api` runs a server on port 3000 with the following endpoints:
 
@@ -74,6 +74,11 @@ Generate coverage files, show coverage:
 - [ ] `read` doesn't print errors to STDERR
 - [x] When using the compiled JAR, jetty announces logging even if not using the api subcommand
 
+### TODO
+
+Not an exhaustive list, just standouts.
+
+- [x] enable `read` to handle files with different delimiters
 ## License
 
 Copyright © 2021 Cooperlebrun

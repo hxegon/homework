@@ -16,6 +16,22 @@
     (let [args ["-f" "deps.edn" "-f" "README.md"]
           parsed (parse-opts args cli/options)]
       (is (= 2 (count (get-in parsed [:options :file]))))))
+  (testing "-F with valid input doesn't cause error"
+    (let [args ["-F" "pipe:deps.edn"]
+          parsed (parse-opts args cli/options)]
+      (is (->> parsed :errors empty?) (->> parsed :errors (string/join \newline)))))
+  (testing "-F rejects input lacking a colon"
+    (let [args ["-F" "pipedeps.edn"]
+          parsed (parse-opts args cli/options)]
+      (is (->> parsed :errors empty? not))))
+  (testing "-F rejects non-existant files"
+    (let [args ["-F" "pipe:non-existant.txt"]
+          parsed (parse-opts args cli/options)]
+      (is (->> parsed :errors empty? not))))
+  (testing "-F rejects invalid delimiters"
+    (let [args ["-F" "foo:deps.edn"]
+          parsed (parse-opts args cli/options)]
+      (is (->> parsed :errors empty? not))))
   (testing "-s has errors with invalid method name"
     (let [args ["-s" "foo" "-f" "deps.edn"]
           parsed (parse-opts args cli/options)]
