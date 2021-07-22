@@ -52,28 +52,33 @@
       (is (->> parsed :options :silent)))))
 
 (deftest args->initial-state-test
-  (testing "-h/--help should have non-empty :exit-message and true :ok?"
+  (testing "-h/--help is :ok?, :help type, and :exit-message"
     (let [state (cli/args->initial-state ["-h"])]
       (is (:ok? state))
+      (is (= :help (:exit-type state)))
       (is (->> state :exit-message empty? not))))
-  (testing "with errors in opts, :ok? false and non-empty :exit-message"
+  (testing "with errors in opts, not :ok?, :options-error type, :exit-message"
     (let [state (cli/args->initial-state ["-f" "non-existant.txt"])]
       (is (->> state :ok? not))
+      (is (= :options-error (:exit-type state)))
       (is (->> state :exit-message empty? not))))
-  (testing "with no files specified, non-empty :exit-message and falsey :ok?"
-    (let [state (cli/args->initial-state [])]
+  (testing "with no files specified, not :ok?, :read-without-files type, and :exit-message"
+    (let [state (cli/args->initial-state ["read"])]
       (is (->> state :ok? not))
+      (is (= :read-without-files (:exit-type state)))
       (is (->> state :exit-message empty? not))))
-  (testing "with a valid input, no errrors"
+  (testing "with a valid input, no :exit-message, no :exit-type, has :options"
     (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
       (is (->> state :options nil? not))
+      (is (nil? (:exit-type state)))
       (is (->> state :exit-message nil?))))
   (testing "has an :action of :read with a 'read' argument"
     (let [state (cli/args->initial-state ["read" "-f" "deps.edn"])]
       (is (= :read (:action state)))))
-  (testing "with invalid action, :ok? false and :exit-message mentioning bad action"
+  (testing "with invalid action, not :ok?, :non-action type, :exit-message mentioning bad action"
     (let [state (cli/args->initial-state ["wrong"])]
       (is (not (:ok? state)))
+      (is (= :non-action (:exit-type state)))
       (is (string/includes? (get state :exit-message "no :exit-message") "wrong")))))
 
 (deftest print-people-state-test

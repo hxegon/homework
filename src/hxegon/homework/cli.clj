@@ -91,15 +91,18 @@
         use-msg (usage summary)]
     (cond
       (:help options)
-      {:ok? true :exit-message use-msg}
+      {:ok? true :exit-type :help :exit-message use-msg}
       errors
-      {:ok? false :exit-message (error-message errors)}
+      {:ok? false :exit-type :options-error :exit-message (error-message errors)}
       (not= 1 (count arguments))
-      {:ok? false :exit-message (str "There should only be one action argument" \newline use-msg)}
+      {:ok? false :exit-type :n-arg
+       :exit-message (str "There should only be one action argument" \newline use-msg)}
       (not (action-set action))
-      {:ok? false :exit-message (str "Argument " action " isn't a possible action." \newline use-msg)}
+      {:ok? false :exit-type :non-action
+       :exit-message (str "Argument " action " isn't a possible action." \newline use-msg)}
       (and (= action :read) (and (->> options :file empty?) (->> options :filespec empty?)))
-      {:ok? false :exit-message "You must specify one or more files using -f or --file when you're use read"}
+      {:ok? false :exit-type :read-without-files
+       :exit-message "You must specify one or more files using -f or --file when you're use read"}
       :else
       (assoc state :action action))))
 
