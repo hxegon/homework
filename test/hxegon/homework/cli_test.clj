@@ -6,53 +6,49 @@
     [hxegon.homework.person :as p]
     [hxegon.homework.cli :as cli]))
 
+(defn- parse-options [args]
+  (parse-opts args cli/options))
+
 (deftest options-test
-  (testing "-f rejects files that don't exist with error"
-    (let [args ["-f" "Doesntexist.txt"]
-          parsed (parse-opts args cli/options)]
-      (is (empty? (get-in parsed [:options :file])))
-      (is (->> parsed :errors empty? not))))
-  (testing "-f can handle multiple files"
-    (let [args ["-f" "deps.edn" "-f" "README.md"]
-          parsed (parse-opts args cli/options)]
-      (is (= 2 (count (get-in parsed [:options :file]))))))
-  (testing "-F with valid input doesn't cause error"
-    (let [args ["-F" "pipe:deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty?) (->> parsed :errors (string/join \newline)))))
-  (testing "-F rejects input lacking a colon"
-    (let [args ["-F" "pipedeps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty? not))))
-  (testing "-F rejects non-existant files"
-    (let [args ["-F" "pipe:non-existant.txt"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty? not))))
-  (testing "-F rejects invalid delimiters"
-    (let [args ["-F" "foo:deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty? not))))
-  (testing "-s has errors with invalid method name"
-    (let [args ["-s" "foo" "-f" "deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty? not))))
-  (testing "-s has no errors with valid SORT option"
-    (let [args ["-s" "gender" "-f" "deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (= :gender (-> parsed :options :sort)))))
-  (testing "-d has errors with an unknown or empty DELIM option"
-    (let [args ["-d" "tab" "-f" "deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors :empty? not)))
-    (let [args ["-d" "" "-f" "deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (->> parsed :errors empty? not))))
-  (testing "-d has no errors with a valid DELIM option"
-    (let [args ["-d" "comma" "-f" "deps.edn"]
-          parsed (parse-opts args cli/options)]
-      (is (= :comma (-> parsed :options :delimiter)))))
+  (testing "-f"
+    (testing "rejects files that don't exist with error"
+      (let [parsed (parse-options ["-f" "Doesntexist.txt"])]
+        (is (empty? (get-in parsed [:options :file])))
+        (is (->> parsed :errors empty? not))))
+    (testing "can handle multiple files"
+      (let [parsed (parse-options ["-f" "deps.edn" "-f" "README.md"])]
+        (is (= 2 (count (get-in parsed [:options :file])))))))
+  (testing "-F"
+    (testing "with valid input doesn't cause error"
+      (let [parsed (parse-options ["-F" "pipe:deps.edn"])]
+        (is (->> parsed :errors empty?))))
+    (testing "rejects input lacking a colon"
+      (let [parsed (parse-options ["-F" "pipedeps.edn"])]
+        (is (->> parsed :errors empty? not))))
+    (testing "rejects non-existant files"
+      (let [parsed (parse-options ["-F" "pipe:non-existant.txt"])]
+        (is (->> parsed :errors empty? not))))
+    (testing "rejects invalid delimiters"
+      (let [parsed (parse-options ["-F" "foo:deps.edn"])]
+        (is (->> parsed :errors empty? not)))))
+  (testing "-s"
+    (testing "has errors with invalid method name"
+      (let [parsed (parse-options ["-s" "foo" "-f" "deps.edn"])]
+        (is (->> parsed :errors empty? not))))
+    (testing "has no errors with valid SORT option"
+      (let [parsed (parse-options ["-s" "gender" "-f" "deps.edn"])]
+        (is (= :gender (-> parsed :options :sort))))))
+  (testing "-d"
+    (testing "has errors with an unknown or empty DELIM option"
+      (let [parsed (parse-options ["-d" "tab" "-f" "deps.edn"])]
+        (is (->> parsed :errors :empty? not)))
+      (let [parsed (parse-options ["-d" "" "-f" "deps.edn"])]
+        (is (->> parsed :errors empty? not))))
+    (testing "has no errors with a valid DELIM option"
+      (let [parsed (parse-options ["-d" "comma" "-f" "deps.edn"])]
+        (is (= :comma (-> parsed :options :delimiter))))))
   (testing "-S has true :silent"
-    (let [parsed (parse-opts ["-S"] cli/options)]
+    (let [parsed (parse-options ["-S"])]
       (is (->> parsed :options :silent)))))
 
 (deftest args->initial-state-test
