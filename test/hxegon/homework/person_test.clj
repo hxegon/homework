@@ -21,27 +21,6 @@
     (let [p (p/person valid-person-args)]
       (is (every? #(contains? p %) [:firstname :lastname :gender :fav-color :dob])))))
 
-; Make a temporary file with a 1 valid and 1 invalid person, read and test, close and delete file
-(deftest read-people-file-test
-  (let [tempfile (java.io.File/createTempFile "read-people-file-test-tempfile" ".txt")
-        filepath (.getAbsolutePath tempfile)
-        people (->> ["Doe | Jane | Female | Red | 01/02/2001" ; valid person
-                     "Smith | John | Male | Blue"]            ; invalid person: wrong number of fields
-                    (string/join \newline))]
-    (with-open [wrtr (clojure.java.io/writer tempfile)]
-      (.write wrtr people))
-    (let [results (p/read-people-file :pipe filepath)]
-      (testing "correct number of people and errors"
-        (is (->> results :people count (= 1)))
-        (is (->> results :errors count (= 1))))
-      (testing "error on expected line"
-        (is (->> results :errors first :line (= 2))))
-      (testing "error on expected file"
-        (is (->> results :errors first :file (= filepath))))
-      (testing "person has expected firstname"
-        (is (->> results :people first :firstname (= "Jane")))))
-    (.delete tempfile)))
-
 (deftest people-sorters-test
   (testing "birthdate sorts people by their DOB (ascending)"
     (let [people (map p/person
@@ -70,28 +49,6 @@
           sorted ((:gender p/people-sorters) people)]
       (is (= ["First" "Second" "Third" "Fourth"]
              (map :firstname sorted))))))
-
-(deftest rename-person-keys-test
-  (testing "Renames keys to expected strings"
-    (let [john (p/person ["Smith" "John" "Male" "blue" "01/01/2001"])
-          bdate (:dob john)
-          readable-john (p/rename-person-keys john)]
-      (is (= ["Smith" "John" "Male" "blue" bdate]
-             (map #(get readable-john %)
-                  ["last name"
-                   "first name"
-                   "gender"
-                   "favorite color"
-                   "birthdate"]))))))
-
-(deftest render-parse-error-test
-  (testing "return string includes all error data"
-    (let [error {:file "foo.txt" :line 1 :msg "barbaz"}
-          return (p/render-parse-error error)]
-      (is (->> (vals error)
-               (map str)
-               (map #(string/includes? return %))
-               (every? identity))))))
 
 (deftest render-dob-test
   (testing "Renders dates as M/D/YYYY"

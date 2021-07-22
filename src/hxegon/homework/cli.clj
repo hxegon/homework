@@ -3,7 +3,7 @@
     [clojure.java.io :as io]
     [clojure.string :as string]
     [clojure.tools.cli :refer [parse-opts]]
-    [clojure.pprint :refer [pprint print-table]]
+    [clojure.pprint :refer [pprint]]
     [hxegon.homework.person :as p]))
 
 (defn- filepath-exists? [pathstr]
@@ -109,31 +109,3 @@
        :exit-message "You must specify one or more files using -f or --file when you're use read"}
       :else
       (assoc state :action action))))
-
-;; TODO : print errors to STDERR. This breaks the tests in a way that's not straightforward to fix...
-;; because we would be binding *out* to a stringio in the test but errors would be printed to *err*
-;; might have to refactor
-(defn print-people-state
-  "Print a state map, prints the contained people as a table and any errors unless :silent is true in :options"
-  [{:keys [people errors options] :as _state}]
-  (let [silent (:silent options)
-        readable-people (->> people
-                             (map #(update % :dob p/render-dob))
-                             (map p/rename-person-keys))
-        error-msgs (when errors (map p/render-parse-error errors))]
-    (print-table readable-people)
-    (when (and (not silent) (->> errors empty? not))
-      (do (println)                 ; empty line between people table and errors
-          (doseq [error-msg error-msgs]
-            (println error-msg))))))
-
-(defn main
-  [{:keys [options] :as state}]
-  (let [{files :file
-         sort-key :sort
-         delim :delimiter
-         fspecs :filespec} options
-        p-files (concat fspecs (map #(assoc {} :filepath % :delimiter delim) files))
-        results (p/merge-read-results (map #(p/read-people-file (:delimiter %) (:filepath %)) p-files))
-        sorter (sort-key p/people-sorters)]
-    (print-people-state (merge state (update results :people sorter)))))

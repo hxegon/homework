@@ -77,6 +77,7 @@ Generate coverage files, show coverage:
 
 Not an exhaustive list, just standouts.
 
+- [x] breakout read into its own ns
 - [x] enable `read` to handle files with different delimiters
 ## License
 

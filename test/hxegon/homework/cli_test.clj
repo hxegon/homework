@@ -87,24 +87,3 @@
       (is (not (:ok? state)))
       (is (= :non-action (:exit-type state)))
       (is (string/includes? (get state :exit-message "no :exit-message") "wrong")))))
-
-(deftest print-people-state-test
-  (testing "people data is sent to *out*"
-    (let [people-data [["Smith" "John" "Male" "blue" "1/1/2000"]
-                       ["Doe" "Jane" "Female" "red" "1/2/2000"]]
-          people (map p/person people-data)
-          result (with-out-str (cli/print-people-state {:people people}))]
-      (is (->> (flatten people-data)
-               (map #(string/includes? result %))
-               (every? identity)))))
-  (testing "error data is sent to *out*"
-    (let [errors [{:file "foo.txt" :line 1 :msg "barbaz"}]
-          error-data (->> errors first vals (map str))
-          result (with-out-str (cli/print-people-state {:errors errors}))]
-      (is (->> error-data
-               (map #(string/includes? result %))
-               (every? identity)))
-      (testing "unless :silent"
-        (let [silent-result (with-out-str (cli/print-people-state {:errors errors :options {:silent true}}))]
-          (println silent-result)
-          (is (= '(false false false) (map #(string/includes? silent-result %) error-data))))))))

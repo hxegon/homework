@@ -2,6 +2,7 @@
   (:require
     [hxegon.homework.cli :as cli]
     [hxegon.homework.api :as api]
+    [hxegon.homework.read :as r]
     [clojure.pprint :refer [pprint]])
   (:gen-class))
 
@@ -18,5 +19,5 @@
     (if exit-message
       (exit ok? exit-message)
       (case action
-        :read (cli/main state)
+        :read (r/main state)
         :api (api/main state)))))
