@@ -31,10 +31,13 @@
    :comma #", "
    :space #" "})
 
+(defn valid-delimiter? [d]
+  (key-of-m? delimiters d))
+
 (defn line->person
   "parse a line into a person. returns either a person or {:error-msg string}"
   [delim line]
-  (if (key-of-m? delimiters delim)
+  (if (valid-delimiter? delim)
     (person (string/split line (delim delimiters)))
     {:error-msg (str "Invalid delimiter value: " delim)}))
 
@@ -53,12 +56,10 @@
                (map vector (line-seq rdr) (map inc (range)))))
        (apply merge-with conj))) ; FIXME: This line is inefficient
 
-(defn read-people-files
-  "Reads a delimiter and a collection of people filepath strings and merges the results"
-  [delim file-names]
-  (->> file-names
-       (map #(read-people-file delim %))
-       (apply merge-with concat)))
+(defn merge-read-results
+  "Merges results from read-people-file, maps of {:people [] :errors []}"
+  [results]
+  (apply merge-with concat results))
 
 (def people-sorters
   "map of fns that sort collections of people"
@@ -80,6 +81,9 @@
                     (string/join " ")
                     string/lower-case)
               people))})
+
+(defn valid-sorter? [s]
+  (key-of-m? people-sorters s))
 
 (defn rename-person-keys
   "Updates :people keys to readable strings. Intended for use with pprint/print-table."
